@@ -664,13 +664,8 @@ export default function BookingPage() {
                 />
               </div>
             </Link>
-            <div className="flex items-center space-x-1">
-              <div className="flex items-center space-x-0.5 text-[#D3B88C]">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-3 h-3 fill-current" />
-                ))}
-              </div>
-            </div>
+           
+           
           </div>
         </div>
       </nav>
@@ -706,12 +701,7 @@ export default function BookingPage() {
 
                 <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 text-[#FBF9D9]">
                   <div className="flex items-center space-x-1 mb-1">
-                    <div className="flex space-x-0.5">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} className="w-3 h-3 fill-current text-[#D3B88C]" />
-                      ))}
-                    </div>
-                    <span className="text-xs font-medium">Premium Experience</span>
+                    
                   </div>
                   <p className="text-xs opacity-90 max-w-xs">{campingImages[currentImageIndex].alt}</p>
                 </div>
@@ -1145,7 +1135,7 @@ export default function BookingPage() {
                       <div className="space-y-2">
                         <div className="p-3 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
                           <div className="flex items-center space-x-2">
-                            <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></div>
+                            
                             <div className="text-sm">
                               <span className="font-medium text-blue-800">Premium Wadi Location</span>
                               <p className="text-blue-700 mt-1">
@@ -1457,14 +1447,14 @@ export default function BookingPage() {
                     <div className="mt-3 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-2">
-                          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                         
                           <span className="text-blue-800 font-medium text-sm">Wadi Premium Location</span>
                         </div>
                         <span className="text-blue-900 font-semibold text-sm">
                           +AED {settings?.wadiSurcharge || 250}
                         </span>
                       </div>
-                      <p className="text-blue-700 text-xs mt-1 ml-4">
+                      <p className="text-blue-700 text-xs mt-1">
                         Includes exclusive desert location access and enhanced amenities
                       </p>
                     </div>
@@ -1536,7 +1526,7 @@ export default function BookingPage() {
                 </div>
 
                 <div className="bg-gradient-to-r from-[#E6CFA9]/50 to-[#D3B88C]/20 p-4 rounded-xl border border-[#3C2317]/10">
-                  <h4 className="font-bold text-[#3C2317] mb-3 text-base">💰 Pricing Guide</h4>
+                  <h4 className="font-bold text-[#3C2317] mb-3 text-base">Pricing Guide</h4>
                   <ul className="text-sm text-[#3C2317]/80 space-y-1">
                     <li className="flex justify-between">
                       <span>Weekdays (Mon-Thu):</span>
