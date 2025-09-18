@@ -1,9 +1,9 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { connectToDatabase } from "@/lib/mongodb"
+import { getDatabase } from "@/lib/mongodb"
 
 export async function GET(request: NextRequest) {
   try {
-    const { db } = await connectToDatabase()
+    const db = await getDatabase()
 
     const bookings = await db.collection("bookings").find({ isPaid: true }).toArray()
 

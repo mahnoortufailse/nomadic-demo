@@ -75,12 +75,16 @@ export default function AdminDashboard() {
 
   const fetchDashboardData = async () => {
     try {
+      console.log("[v0] Fetching dashboard data...")
+
       const statsResponse = await fetch("/api/stats")
       const statsData = await statsResponse.json()
+      console.log("[v0] Stats data received:", statsData)
       setStats(statsData)
 
       const chartResponse = await fetch("/api/charts")
       const chartDataResponse = await chartResponse.json()
+      console.log("[v0] Chart data received:", chartDataResponse)
       setChartData({
         monthlyBookings: chartDataResponse.monthlyBookings,
         locationStats: chartDataResponse.locationStats,
@@ -88,6 +92,7 @@ export default function AdminDashboard() {
 
       const bookingsResponse = await fetch("/api/bookings?isPaid=true&limit=10")
       const bookingsData = await bookingsResponse.json()
+      console.log("[v0] Bookings data received:", bookingsData)
       setBookings(bookingsData.bookings || [])
     } catch (error) {
       console.error("Error fetching dashboard data:", error)
@@ -105,6 +110,7 @@ export default function AdminDashboard() {
 
       if (response.ok) {
         setBookings(bookings.filter((booking) => booking._id !== bookingId))
+        await fetchDashboardData()
         toast.success("Booking deleted successfully")
       } else {
         toast.error("Failed to delete booking")

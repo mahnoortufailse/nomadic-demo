@@ -87,23 +87,23 @@ export default function BookingPage() {
 
   const campingImages = [
     {
-      src: "/desert-camping-with-tents-under-starry-sky.jpg",
+      src: "/image1.jpg",
       alt: "Desert camping with tents under starry sky",
     },
     {
-      src: "/desert-landscape-with-sand-dunes-and-warm-golden-l.jpg",
+      src: "/image5.jpg",
       alt: "Desert landscape with sand dunes",
     },
     {
-      src: "/wadi-valley-camping-with-water-pools-and-palm-tree.jpg",
+      src: "/image3.jpg",
       alt: "Wadi valley camping with water pools",
     },
     {
-      src: "/mountain-camping-with-rocky-peaks-and-tents.jpg",
+      src: "/image4.jpg",
       alt: "Mountain camping with rocky peaks",
     },
     {
-      src: "/desert-landscape-with-sand-dunes-and-warm-golden-l.jpg",
+      src: "/image6.jpg",
       alt: "Private event camping setup",
     },
   ]
@@ -700,33 +700,17 @@ export default function BookingPage() {
         <div className="mb-6 sm:mb-8 animate-fade-in-up">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
             <div className="lg:col-span-3">
-              <div className="relative h-[250px] sm:h-[300px] md:h-[400px] rounded-xl overflow-hidden shadow-xl group">
+              <div className="relative h-[350px] sm:h-[450px] md:h-[550px] rounded-xl overflow-hidden shadow-xl group">
                 <Image
                   src={
                     campingImages[currentImageIndex].src ||
-                    "/placeholder.svg?height=400&width=800&query=luxury desert camping" ||
-                    "/placeholder.svg" ||
-                    "/placeholder.svg" ||
-                    "/placeholder.svg" ||
-                    "/placeholder.svg" ||
-                    "/placeholder.svg" ||
-                    "/placeholder.svg" ||
-                    "/placeholder.svg" ||
-                    "/placeholder.svg" ||
-                    "/placeholder.svg" ||
-                    "/placeholder.svg" ||
-                    "/placeholder.svg" ||
-                    "/placeholder.svg" ||
-                    "/placeholder.svg" ||
-                    "/placeholder.svg" ||
-                    "/placeholder.svg" ||
-                    "/placeholder.svg" ||
-                    "/placeholder.svg" ||
+                    "/placeholder.svg?height=550&width=1000&query=luxury desert camping" ||
                     "/placeholder.svg"
                   }
                   alt={campingImages[currentImageIndex].alt}
                   fill
                   className="object-cover transition-transform duration-700 group-hover:scale-105"
+                  priority={currentImageIndex === 0}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#3C2317]/40 via-transparent to-transparent"></div>
 
@@ -740,11 +724,11 @@ export default function BookingPage() {
               {campingImages.slice(1, 5).map((image, index) => (
                 <div
                   key={index}
-                  className="relative h-[60px] sm:h-[70px] md:h-[95px] rounded-lg overflow-hidden shadow-md cursor-pointer group transition-all duration-300 hover:shadow-xl hover:scale-105"
+                  className="relative h-[80px] sm:h-[100px] md:h-[130px] rounded-lg overflow-hidden shadow-md cursor-pointer group transition-all duration-300 hover:shadow-xl hover:scale-105"
                   onClick={() => setCurrentImageIndex(index + 1)}
                 >
                   <Image
-                    src={image.src || "/placeholder.svg?height=95&width=200&query=camping scene"}
+                    src={image.src || "/placeholder.svg?height=130&width=200&query=camping scene"}
                     alt={image.alt}
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-110"
@@ -784,160 +768,121 @@ export default function BookingPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           <div className="lg:col-span-2 space-y-4 sm:space-y-6">
             <Card className="border-[#D3B88C]/50 shadow-lg hover:shadow-xl transition-all duration-300 bg-[#FBF9D9]/80 backdrop-blur-sm !pt-0">
-              <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 border-b border-[#D3B88C]/50 h-12 py-3">
-                <CardTitle className="text-[#3C2317] flex items-center space-x-2 text-lg">
-                  <Users className="w-5 h-5 text-[#3C2317]" />
-                  <span>Booking Details</span>
-                </CardTitle>
+              <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 border-b border-[#D3B88C]/50  h-12 py-3">
+                <CardTitle className="text-[#3C2317] text-lg">Step 1: Location & Setup</CardTitle>
               </CardHeader>
-              <CardContent className="p-4 sm:p-6 space-y-6">
-                {/* Number of Tents */}
-                <div>
-                  <Label className="text-[#3C2317] mb-2 block font-medium">Number of Tents *</Label>
-                  <div className="text-xs text-[#3C2317]/70 mb-3 text-center  p-2 rounded-lg">
-                    Each tent accommodates up to 4 guests
-                  </div>
-                  <div className="flex items-center justify-center space-x-4">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="lg"
-                      onClick={() => handleTentChange(false)}
-                      disabled={formData.numberOfTents <= 1}
-                      className="border-2 border-[#D3B88C] hover:border-[#3C2317] cursor-pointer hover:bg-[#D3B88C] transition-all duration-300 h-10 w-10 rounded-xl"
-                    >
-                      <Minus className="h-4 w-4" />
-                    </Button>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-[#3C2317] mb-1">{formData.numberOfTents}</div>
-                      <div className="text-xs text-[#3C2317]/70">{formData.numberOfTents === 1 ? "tent" : "tents"}</div>
+              <CardContent className="p-4 sm:p-6 space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="location" className="text-[#3C2317] font-semibold text-sm">
+                    Location *
+                  </Label>
+                  {locationMessage && (
+                    <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                      <p className="text-amber-800 text-sm">{locationMessage}</p>
                     </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="lg"
-                      onClick={() => handleTentChange(true)}
-                      disabled={formData.numberOfTents >= 5}
-                      className="border-2 border-[#D3B88C] hover:border-[#3C2317] hover:bg-[#D3B88C] cursor-pointer transition-all duration-300 h-10 w-10 rounded-xl"
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  {errors.numberOfTents && touched.numberOfTents && (
-                    <p className="text-sm text-red-600 mt-2 flex items-center justify-center space-x-1">
-                      <X className="w-3 h-3" />
-                      <span>{errors.numberOfTents}</span>
-                    </p>
                   )}
-                  {formData.numberOfTents >= 5 && (
-                    <p className="text-xs text-[#3C2317]/80 mt-2 text-center font-medium">
-                      For larger bookings or special requests, please enquire directly with our team.
-                    </p>
-                  )}
-                </div>
 
-                <div className="grid grid-cols-2 gap-4 !py-7">
-                  {/* Adults */}
-                  <div>
-                    <Label className="text-[#3C2317] mb-2 block font-medium">Adults *</Label>
-                    <div className="flex items-center justify-center space-x-2">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleAdultsChange(false)}
-                        disabled={adults <= 1}
-                        className="border-2 border-[#D3B88C] hover:border-[#3C2317] cursor-pointer transition-all duration-300 h-8 w-8 rounded-lg hover:bg-[#D3B88C]"
-                      >
-                        <Minus className="h-3 w-3" />
-                      </Button>
-                      <div className="text-center min-w-[60px]">
-                        <div className="text-lg font-bold text-[#3C2317]">{adults}</div>
-                      </div>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleAdultsChange(true)}
-                        disabled={adults >= 20 || adults + children >= formData.numberOfTents * 4}
-                        className="border-2 border-[#D3B88C] hover:border-[#3C2317] cursor-pointer hover:bg-[#D3B88C] transition-all duration-300 h-8 w-8 rounded-lg"
-                      >
-                        <Plus className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </div>
+                  <Select
+                    value={formData.location}
+                    onValueChange={(value: "Desert" | "Mountain" | "Wadi") => {
+                      console.log("[v0] Location selection attempted:", value)
+                      console.log("[v0] Available locations:", dateConstraints.availableLocations)
+                      console.log("[v0] Locked location:", dateConstraints.lockedLocation)
 
-                  {/* Children */}
-                  <div>
-                    <Label className="text-[#3C2317] mb-2 block font-medium">
-                      Children <span className="text-xs text-[#3C2317]/70">(under 12)</span>
-                    </Label>
-                    <div className="flex items-center justify-center space-x-2">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleChildrenChange(false)}
-                        disabled={children <= 0}
-                        className="border-2 border-[#D3B88C] hover:border-[#3C2317] cursor-pointer transition-all duration-300 h-8 w-8 rounded-lg hover:bg-[#D3B88C]"
-                      >
-                        <Minus className="h-3 w-3" />
-                      </Button>
-                      <div className="text-center min-w-[60px]">
-                        <div className="text-lg font-bold text-[#3C2317]">{children}</div>
-                      </div>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleChildrenChange(true)}
-                        disabled={children >= 10 || adults + children >= formData.numberOfTents * 4}
-                        className="border-2 border-[#D3B88C] hover:border-[#3C2317] cursor-pointer hover:bg-[#D3B88C] transition-all duration-300 h-8 w-8 rounded-lg"
-                      >
-                        <Plus className="h-3 w-3" />
-                      </Button>
-                    </div>
-                    {children > 0 && (
-                      <p className="text-xs text-green-600 mt-1 text-center font-medium">
-                        Free portable toilet included!
-                      </p>
-                    )}
-                  </div>
-                </div>
+                      if (dateConstraints.lockedLocation && value !== dateConstraints.lockedLocation) {
+                        console.log("[v0] Preventing location change - date is locked")
+                        setLocationMessage(
+                          `This date is reserved for ${dateConstraints.lockedLocation} location only. Please select a different date to book ${value}.`,
+                        )
+                        return
+                      }
 
-                {formData.numberOfTents > 0 && (
-                  <div>
-                    <Label className="text-[#3C2317] mb-3 block font-medium">Sleeping Arrangements</Label>
-                    <div className="text-xs text-[#3C2317]/60 mb-3">
-                      Configure how guests will sleep in each tent (max 4 guests per tent)
-                    </div>
-                    <div className="space-y-3">
-                      {formData.sleepingArrangements.map((arrangement) => (
-                        <div
-                          key={arrangement.tentNumber}
-                          className="flex items-center justify-between p-3 bg-[#E6CFA9]/30 rounded-xl"
-                        >
-                          <span className="text-[#3C2317] font-medium text-sm">Tent {arrangement.tentNumber}</span>
-                          <Select
-                            value={arrangement.arrangement}
-                            onValueChange={(value: "all-singles" | "two-doubles" | "mix") =>
-                              handleSleepingArrangementChange(arrangement.tentNumber, value)
-                            }
-                          >
-                            <SelectTrigger className="w-40 border border-[#D3B88C] focus:border-[#3C2317] h-8 text-xs">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="all-singles">4 single beds</SelectItem>
-                              <SelectItem value="two-doubles">2 double beds (4 guests)</SelectItem>
-                              <SelectItem value="mix">1 double + 2 singles (4 guests)</SelectItem>
-                            </SelectContent>
-                          </Select>
+                      handleInputChange("location", value)
+                      validateField("numberOfTents", formData.numberOfTents.toString())
+                      setLocationMessage("")
+                    }}
+                    disabled={checkingConstraints}
+                  >
+                    <SelectTrigger className="border-2 border-[#D3B88C] focus:border-[#3C2317] focus:ring-2 focus:ring-[#3C2317]/20 transition-all duration-300 h-10 sm:h-12 rounded-xl">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem
+                        value="Desert"
+                        disabled={dateConstraints.lockedLocation && dateConstraints.lockedLocation !== "Desert"}
+                      >
+                        🏜️ Desert
+                        {dateConstraints.lockedLocation && dateConstraints.lockedLocation !== "Desert" && (
+                          <span className="text-xs text-gray-500 ml-2">(Not available for this date)</span>
+                        )}
+                      </SelectItem>
+                      <SelectItem value="Mountain" disabled>
+                        ⛰️ Mountain (Coming Soon)
+                      </SelectItem>
+                      <SelectItem
+                        value="Wadi"
+                        disabled={dateConstraints.lockedLocation && dateConstraints.lockedLocation !== "Wadi"}
+                      >
+                        🌊 Wadi
+                        <span className="text-xs text-amber-600 ml-2">(min. 2 tents required)</span>
+                        {dateConstraints.lockedLocation && dateConstraints.lockedLocation !== "Wadi" && (
+                          <span className="text-xs text-gray-500 ml-2">(Not available for this date)</span>
+                        )}
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  {formData.location === "Wadi" && (
+                    <div className="space-y-2">
+                      <div className="p-3 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
+                        <div className="flex items-center space-x-2">
+                          <div className="text-sm">
+                            <span className="font-medium text-blue-800">Premium Wadi Location</span>
+                            <p className="text-blue-700 mt-1">
+                              Scenic valley setting with enhanced privacy • Requires minimum 2 tents • Additional 250
+                              AED surcharge
+                            </p>
+                          </div>
                         </div>
-                      ))}
+                      </div>
+
+                      {dateConstraints.remainingCapacity < 2 && (
+                        <div className="p-3 bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 rounded-lg">
+                          <div className="flex items-center space-x-2">
+                            <div className="w-2 h-2 bg-red-500 rounded-full flex-shrink-0"></div>
+                            <span className="text-sm font-medium text-red-800">
+                              Wadi requires 2 tents and on this date max {dateConstraints.remainingCapacity} tent
+                              {dateConstraints.remainingCapacity === 1 ? "" : "s"} you can book, so choose another date
+                              for this place
+                            </span>
+                          </div>
+                        </div>
+                      )}
+
+                      {formData.numberOfTents < 2 && dateConstraints.remainingCapacity >= 2 && (
+                        <div className="p-3 bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 rounded-lg">
+                          <div className="flex items-center space-x-2">
+                            <div className="w-2 h-2 bg-red-500 rounded-full flex-shrink-0"></div>
+                            <span className="text-sm font-medium text-red-800">
+                              Please select at least 2 tents for Wadi location
+                            </span>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  </div>
-                )}
+                  )}
+
+                  {formData.location === "Desert" && (
+                    <div className="mt-2 p-3 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-amber-500 rounded-full flex-shrink-0"></div>
+                        <span className="text-sm font-medium text-amber-800">
+                          Classic Desert Experience • No additional surcharge
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </CardContent>
             </Card>
 
@@ -945,7 +890,7 @@ export default function BookingPage() {
               <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 border-b border-[#D3B88C]/50 h-12 py-3">
                 <CardTitle className="text-[#3C2317] flex items-center space-x-2 text-lg">
                   <Calendar className="w-5 h-5 text-[#3C2317]" />
-                  <span>Choose your perfect date</span>
+                  <span>Step 2: Choose your perfect date</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-4 sm:p-6">
@@ -1012,8 +957,294 @@ export default function BookingPage() {
 
             <form className="space-y-4 sm:space-y-6">
               <Card className="border-[#D3B88C]/50 shadow-lg hover:shadow-xl transition-all duration-300 bg-[#FBF9D9]/80 backdrop-blur-sm !pt-0">
-                <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 border-b border-[#D3B88C]/50  h-12 py-3">
-                  <CardTitle className="text-[#3C2317] text-lg">Personal Information</CardTitle>
+                <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 border-b border-[#D3B88C]/50 h-12 py-3">
+                  <CardTitle className="text-[#3C2317] flex items-center space-x-2 text-lg">
+                    <Users className="w-5 h-5 text-[#3C2317]" />
+                    <span>Step 3: Booking Details</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-4 sm:p-6 space-y-4">
+                  <div className="grid grid-cols-3 gap-3">
+                    {/* Number of Tents */}
+                    <div>
+                      <Label className="text-[#3C2317] mb-2 block font-medium text-sm">Number of Tents *</Label>
+                      <div className="flex  space-x-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleTentChange(false)}
+                          disabled={formData.numberOfTents <= 1}
+                          className="border-2 border-[#D3B88C] hover:border-[#3C2317] cursor-pointer hover:bg-[#D3B88C] transition-all duration-300 h-8 w-8 rounded-lg"
+                        >
+                          <Minus className="h-3 w-3" />
+                        </Button>
+                        <div className="text-center min-w-[50px]">
+                          <div className="text-lg font-bold text-[#3C2317]">{formData.numberOfTents}</div>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleTentChange(true)}
+                          disabled={formData.numberOfTents >= 5}
+                          className="border-2 border-[#D3B88C] hover:border-[#3C2317] hover:bg-[#D3B88C] cursor-pointer transition-all duration-300 h-8 w-8 rounded-lg"
+                        >
+                          <Plus className="h-3 w-3" />
+                        </Button>
+                      </div>
+                      {errors.numberOfTents && touched.numberOfTents && (
+                        <p className="text-xs text-red-600 mt-1.5 ">
+                          {errors.numberOfTents}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Adults */}
+                    <div>
+                      <Label className="text-[#3C2317] mb-2 block font-medium text-sm">Adults *</Label>
+                      <div className="flex  space-x-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleAdultsChange(false)}
+                          disabled={adults <= 1}
+                          className="border-2 border-[#D3B88C] hover:border-[#3C2317] cursor-pointer transition-all duration-300 h-8 w-8 rounded-lg hover:bg-[#D3B88C]"
+                        >
+                          <Minus className="h-3 w-3" />
+                        </Button>
+                        <div className="text-center min-w-[50px]">
+                          <div className="text-lg font-bold text-[#3C2317]">{adults}</div>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleAdultsChange(true)}
+                          disabled={adults >= 20 || adults + children >= formData.numberOfTents * 4}
+                          className="border-2 border-[#D3B88C] hover:border-[#3C2317] cursor-pointer hover:bg-[#D3B88C] transition-all duration-300 h-8 w-8 rounded-lg"
+                        >
+                          <Plus className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Children */}
+                    <div>
+                      <Label className="text-[#3C2317] mb-2 block font-medium text-sm">
+                        Children <span className="text-xs text-[#3C2317]/70">(under 12)</span>
+                      </Label>
+                      <div className="flex  space-x-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleChildrenChange(false)}
+                          disabled={children <= 0}
+                          className="border-2 border-[#D3B88C] hover:border-[#3C2317] cursor-pointer transition-all duration-300 h-8 w-8 rounded-lg hover:bg-[#D3B88C]"
+                        >
+                          <Minus className="h-3 w-3" />
+                        </Button>
+                        <div className="text-center min-w-[50px]">
+                          <div className="text-lg font-bold text-[#3C2317]">{children}</div>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleChildrenChange(true)}
+                          disabled={children >= 10 || adults + children >= formData.numberOfTents * 4}
+                          className="border-2 border-[#D3B88C] hover:border-[#3C2317] cursor-pointer hover:bg-[#D3B88C] transition-all duration-300 h-8 w-8 rounded-lg"
+                        >
+                          <Plus className="h-3 w-3" />
+                        </Button>
+                      </div>
+                      {children > 0 && (
+                        <p className="text-xs text-green-600 mt-1 font-medium">
+                          Free portable toilet included!
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="text-center p-2 rounded-lg">
+                    <p className="text-xs text-[#3C2317]/70">
+                      Each tent accommodates up to 4 guests • Total capacity: {formData.numberOfTents * 4} guests
+                    </p>
+                  </div>
+
+                  {formData.numberOfTents >= 5 && (
+                    <div className="text-center p-2 bg-amber-50 border border-amber-200 rounded-lg">
+                      <p className="text-xs text-amber-800 font-medium">
+                        For larger bookings or special requests, please enquire directly with our team.
+                      </p>
+                    </div>
+                  )}
+
+                  {formData.numberOfTents > 0 && (
+                    <div className="mt-4">
+                      <Label className="text-[#3C2317] mb-3 block font-medium">Sleeping Arrangements</Label>
+                      <div className="text-xs text-[#3C2317]/60 mb-3">
+                        Configure how guests will sleep in each tent (max 4 guests per tent)
+                      </div>
+                      <div className="space-y-3">
+                        {formData.sleepingArrangements.map((arrangement) => (
+                          <div
+                            key={arrangement.tentNumber}
+                            className="flex items-center justify-between p-3 bg-[#E6CFA9]/30 rounded-xl"
+                          >
+                            <span className="text-[#3C2317] font-medium text-sm">Tent {arrangement.tentNumber}</span>
+                            <Select
+                              value={arrangement.arrangement}
+                              onValueChange={(value: "all-singles" | "two-doubles" | "mix") =>
+                                handleSleepingArrangementChange(arrangement.tentNumber, value)
+                              }
+                            >
+                              <SelectTrigger className="w-40 border border-[#D3B88C] focus:border-[#3C2317] h-8 text-xs">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="all-singles">4 single beds</SelectItem>
+                                <SelectItem value="two-doubles">2 double beds (4 guests)</SelectItem>
+                                <SelectItem value="mix">1 double + 2 singles (4 guests)</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card className="border-[#D3B88C]/50 shadow-lg hover:shadow-xl transition-all duration-300 bg-[#FBF9D9]/80 backdrop-blur-sm !pt-0">
+                <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 border-b border-[#D3B88C]/50 h-12 py-3">
+                  <CardTitle className="text-[#3C2317] text-lg">Step 4: Premium Add-ons</CardTitle>
+                </CardHeader>
+                <CardContent className="p-4 space-y-1">
+                  <div className="grid gap-1">
+                    {/* Charcoal Add-on */}
+                    <div className="flex items-start space-x-3 p-3 rounded-xl hover:bg-[#E6CFA9]/50 transition-all duration-300 border border-transparent hover:border-[#D3B88C]/30">
+                      <Checkbox
+                        id="charcoal"
+                        checked={formData.addOns.charcoal}
+                        onCheckedChange={(checked) => handleAddOnChange("charcoal", checked as boolean)}
+                        className="border-2 border-[#3C2317] data-[state=checked]:bg-[#3C2317] data-[state=checked]:border-[#3C2317] h-4 w-4 mt-0.5 flex-shrink-0 cursor-pointer"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex justify-between items-start mb-1">
+                          <Label htmlFor="charcoal" className="text-[#3C2317] font-medium text-sm cursor-pointer">
+                            Premium Charcoal
+                          </Label>
+                          <span className="text-[#3C2317] font-bold text-sm whitespace-nowrap ml-2">
+                            AED {settings?.addOnPrices?.charcoal || 60}
+                          </span>
+                        </div>
+                        <p className="text-xs text-[#3C2317]/80 mt-1">High-quality charcoal for perfect grilling</p>
+                      </div>
+                    </div>
+
+                    {/* Firewood Add-on */}
+                    <div className="flex items-start space-x-3 p-3 rounded-xl hover:bg-[#E6CFA9]/50 transition-all duration-300 border border-transparent hover:border-[#D3B88C]/30">
+                      <Checkbox
+                        id="firewood"
+                        checked={formData.addOns.firewood}
+                        onCheckedChange={(checked) => handleAddOnChange("firewood", checked as boolean)}
+                        className="border-2 border-[#3C2317] data-[state=checked]:bg-[#3C2317] data-[state=checked]:border-[#3C2317] h-4 w-4 mt-0.5 flex-shrink-0 cursor-pointer"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex justify-between items-start mb-1">
+                          <Label htmlFor="firewood" className="text-[#3C2317] font-medium text-sm cursor-pointer">
+                            Premium Firewood
+                          </Label>
+                          <span className="text-[#3C2317] font-bold text-sm whitespace-nowrap ml-2">
+                            AED {settings?.addOnPrices?.firewood || 75}
+                          </span>
+                        </div>
+                        <p className="text-xs text-[#3C2317]/80 mt-1">Seasoned wood for cozy campfires</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start space-x-3 p-3 rounded-xl hover:bg-[#E6CFA9]/50 transition-all duration-300 border border-transparent hover:border-[#D3B88C]/30">
+                      <Checkbox
+                        id="portableToilet"
+                        checked={formData.addOns.portableToilet}
+                        onCheckedChange={(checked) => handleAddOnChange("portableToilet", checked as boolean)}
+                        className="border-2 border-[#3C2317] data-[state=checked]:bg-[#3C2317] data-[state=checked]:border-[#3C2317] h-4 w-4 mt-0.5 flex-shrink-0 cursor-pointer"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex justify-between items-start mb-1">
+                          <Label htmlFor="portableToilet" className="text-[#3C2317] font-medium text-sm cursor-pointer">
+                            Portable Camping Toilet
+                          </Label>
+                          <span className="text-[#3C2317] font-bold text-sm whitespace-nowrap ml-2">
+                            {formData.hasChildren
+                              ? "FREE with children"
+                              : `AED ${settings?.addOnPrices?.portableToilet || 200}`}
+                          </span>
+                        </div>
+                        <p className="text-xs text-[#3C2317]/80 mt-1">Private, clean facilities for your comfort</p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {settings?.customAddOns && settings.customAddOns.length > 0 && (
+                <Card className="border-[#D3B88C]/50 shadow-lg hover:shadow-xl transition-all duration-300 bg-[#FBF9D9]/80 backdrop-blur-sm !pt-0">
+                  <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 border-b border-[#D3B88C]/50 h-12 py-3">
+                    <CardTitle className="text-[#3C2317] flex items-center justify-between text-lg">
+                      <span>Exclusive Services</span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleManualRefresh}
+                        disabled={loadingSettings}
+                        className="text-[#3C2317] hover:text-[#3C2317]/80 hover:bg-[#3C2317]/10 p-1"
+                      >
+                        {loadingSettings ? <Loader2 className="w-3 h-3 animate-spin" /> : "Refresh"}
+                      </Button>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-4 space-y-1">
+                    {settings.customAddOns.map((addon) => (
+                      <div
+                        key={addon.id}
+                        className="flex items-start space-x-3 p-3 rounded-xl hover:bg-[#E6CFA9]/50 transition-all duration-300 border border-transparent hover:border-[#D3B88C]/30"
+                      >
+                        <Checkbox
+                          id={`custom-${addon.id}`}
+                          checked={selectedCustomAddOns.includes(addon.id)}
+                          onCheckedChange={(checked) => handleCustomAddOnChange(addon.id, checked as boolean)}
+                          className="border-2 border-[#3C2317] data-[state=checked]:bg-[#3C2317] data-[state=checked]:border-[#3C2317] h-4 w-4 mt-0.5 flex-shrink-0 cursor-pointer"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex justify-between items-start mb-1">
+                            <Label
+                              htmlFor={`custom-${addon.id}`}
+                              className="text-[#3C2317] font-medium text-sm cursor-pointer"
+                            >
+                              {addon.name}
+                            </Label>
+                            <span className="text-[#3C2317] font-bold text-sm whitespace-nowrap ml-2">
+                              AED {addon.price}
+                            </span>
+                          </div>
+                          {addon.description && <p className="text-xs text-[#3C2317]/80 mt-1">{addon.description}</p>}
+                        </div>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              )}
+
+             
+
+              <Card className="border-[#D3B88C]/50 shadow-lg hover:shadow-xl transition-all duration-300 bg-[#FBF9D9]/80 backdrop-blur-sm !pt-0">
+                <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 border-b border-[#D3B88C]/50 h-12 py-3">
+                  <CardTitle className="text-[#3C2317] text-lg">Step 5: Personal Information</CardTitle>
                 </CardHeader>
                 <CardContent className="p-4 sm:p-6 space-y-4">
                   <div>
@@ -1094,250 +1325,9 @@ export default function BookingPage() {
                 </CardContent>
               </Card>
 
-              <Card className="border-[#D3B88C]/50 shadow-lg hover:shadow-xl transition-all duration-300 bg-[#FBF9D9]/80 backdrop-blur-sm !pt-0">
-                <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 border-b border-[#D3B88C]/50  h-12 py-3">
-                  <CardTitle className="text-[#3C2317] text-lg">Location & Setup</CardTitle>
-                </CardHeader>
-                <CardContent className="p-4 sm:p-6 space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="location" className="text-[#3C2317] font-semibold text-sm">
-                      Location *
-                    </Label>
-                    {locationMessage && (
-                      <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                        <p className="text-amber-800 text-sm">{locationMessage}</p>
-                      </div>
-                    )}
-
-                    <Select
-                      value={formData.location}
-                      onValueChange={(value: "Desert" | "Mountain" | "Wadi") => {
-                        console.log("[v0] Location selection attempted:", value)
-                        console.log("[v0] Available locations:", dateConstraints.availableLocations)
-                        console.log("[v0] Locked location:", dateConstraints.lockedLocation)
-
-                        if (dateConstraints.lockedLocation && value !== dateConstraints.lockedLocation) {
-                          console.log("[v0] Preventing location change - date is locked")
-                          setLocationMessage(
-                            `This date is reserved for ${dateConstraints.lockedLocation} location only. Please select a different date to book ${value}.`,
-                          )
-                          return
-                        }
-
-                        handleInputChange("location", value)
-                        validateField("numberOfTents", formData.numberOfTents.toString())
-                        setLocationMessage("")
-                      }}
-                      disabled={checkingConstraints}
-                    >
-                      <SelectTrigger className="border-2 border-[#D3B88C] focus:border-[#3C2317] focus:ring-2 focus:ring-[#3C2317]/20 transition-all duration-300 h-10 sm:h-12 rounded-xl">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem
-                          value="Desert"
-                          disabled={dateConstraints.lockedLocation && dateConstraints.lockedLocation !== "Desert"}
-                        >
-                          🏜️ Desert
-                          {dateConstraints.lockedLocation && dateConstraints.lockedLocation !== "Desert" && (
-                            <span className="text-xs text-gray-500 ml-2">(Not available for this date)</span>
-                          )}
-                        </SelectItem>
-                        <SelectItem value="Mountain" disabled>
-                          ⛰️ Mountain (Coming Soon)
-                        </SelectItem>
-                        <SelectItem
-                          value="Wadi"
-                          disabled={dateConstraints.lockedLocation && dateConstraints.lockedLocation !== "Wadi"}
-                        >
-                          🌊 Wadi
-                          <span className="text-xs text-amber-600 ml-2">(min. 2 tents required)</span>
-                          {dateConstraints.lockedLocation && dateConstraints.lockedLocation !== "Wadi" && (
-                            <span className="text-xs text-gray-500 ml-2">(Not available for this date)</span>
-                          )}
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-
-                    {formData.location === "Wadi" && (
-                      <div className="space-y-2">
-                        <div className="p-3 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
-                          <div className="flex items-center space-x-2">
-                            <div className="text-sm">
-                              <span className="font-medium text-blue-800">Premium Wadi Location</span>
-                              <p className="text-blue-700 mt-1">
-                                Scenic valley setting with enhanced privacy • Requires minimum 2 tents • Additional 250
-                                AED surcharge
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-
-                        {dateConstraints.remainingCapacity < 2 && (
-                          <div className="p-3 bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 rounded-lg">
-                            <div className="flex items-center space-x-2">
-                              <div className="w-2 h-2 bg-red-500 rounded-full flex-shrink-0"></div>
-                              <span className="text-sm font-medium text-red-800">
-                                Wadi requires 2 tents and on this date max {dateConstraints.remainingCapacity} tent
-                                {dateConstraints.remainingCapacity === 1 ? "" : "s"} you can book, so choose another
-                                date for this place
-                              </span>
-                            </div>
-                          </div>
-                        )}
-
-                        {formData.numberOfTents < 2 && dateConstraints.remainingCapacity >= 2 && (
-                          <div className="p-3 bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 rounded-lg">
-                            <div className="flex items-center space-x-2">
-                              <div className="w-2 h-2 bg-red-500 rounded-full flex-shrink-0"></div>
-                              <span className="text-sm font-medium text-red-800">
-                                Please select at least 2 tents for Wadi location
-                              </span>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    {formData.location === "Desert" && (
-                      <div className="mt-2 p-3 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg">
-                        <div className="flex items-center space-x-2">
-                          <div className="w-2 h-2 bg-amber-500 rounded-full flex-shrink-0"></div>
-                          <span className="text-sm font-medium text-amber-800">
-                            Classic Desert Experience • No additional surcharge
-                          </span>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="border-[#D3B88C]/50 shadow-lg hover:shadow-xl transition-all duration-300 bg-[#FBF9D9]/80 backdrop-blur-sm !pt-0">
-                <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 border-b border-[#D3B88C]/50  h-12 py-3">
-                  <CardTitle className="text-[#3C2317] text-lg">Premium Add-ons</CardTitle>
-                </CardHeader>
-                <CardContent className="p-4 space-y-1">
-                  <div className="grid gap-1">
-                    {/* Charcoal Add-on */}
-                    <div className="flex items-start space-x-3 p-3 rounded-xl hover:bg-[#E6CFA9]/50 transition-all duration-300 border border-transparent hover:border-[#D3B88C]/30">
-                      <Checkbox
-                        id="charcoal"
-                        checked={formData.addOns.charcoal}
-                        onCheckedChange={(checked) => handleAddOnChange("charcoal", checked as boolean)}
-                        className="border-2 border-[#3C2317] data-[state=checked]:bg-[#3C2317] data-[state=checked]:border-[#3C2317] h-4 w-4 mt-0.5 flex-shrink-0 cursor-pointer"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex justify-between items-start mb-1">
-                          <Label htmlFor="charcoal" className="text-[#3C2317] font-medium text-sm cursor-pointer">
-                            Premium Charcoal
-                          </Label>
-                          <span className="text-[#3C2317] font-bold text-sm whitespace-nowrap ml-2">
-                            AED {settings?.addOnPrices?.charcoal || 60}
-                          </span>
-                        </div>
-                        <p className="text-xs text-[#3C2317]/80 mt-1">High-quality charcoal for perfect grilling</p>
-                      </div>
-                    </div>
-
-                    {/* Firewood Add-on */}
-                    <div className="flex items-start space-x-3 p-3 rounded-xl hover:bg-[#E6CFA9]/50 transition-all duration-300 border border-transparent hover:border-[#D3B88C]/30">
-                      <Checkbox
-                        id="firewood"
-                        checked={formData.addOns.firewood}
-                        onCheckedChange={(checked) => handleAddOnChange("firewood", checked as boolean)}
-                        className="border-2 border-[#3C2317] data-[state=checked]:bg-[#3C2317] data-[state=checked]:border-[#3C2317] h-4 w-4 mt-0.5 flex-shrink-0 cursor-pointer"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex justify-between items-start mb-1">
-                          <Label htmlFor="firewood" className="text-[#3C2317] font-medium text-sm cursor-pointer">
-                            Premium Firewood
-                          </Label>
-                          <span className="text-[#3C2317] font-bold text-sm whitespace-nowrap ml-2">
-                            AED {settings?.addOnPrices?.firewood || 75}
-                          </span>
-                        </div>
-                        <p className="text-xs text-[#3C2317]/80 mt-1">Seasoned wood for cozy campfires</p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start space-x-3 p-3 rounded-xl hover:bg-[#E6CFA9]/50 transition-all duration-300 border border-transparent hover:border-[#D3B88C]/30">
-                      <Checkbox
-                        id="portableToilet"
-                        checked={formData.addOns.portableToilet}
-                        onCheckedChange={(checked) => handleAddOnChange("portableToilet", checked as boolean)}
-                        className="border-2 border-[#3C2317] data-[state=checked]:bg-[#3C2317] data-[state=checked]:border-[#3C2317] h-4 w-4 mt-0.5 flex-shrink-0 cursor-pointer"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex justify-between items-start mb-1">
-                          <Label htmlFor="portableToilet" className="text-[#3C2317] font-medium text-sm cursor-pointer">
-                            Portable Camping Toilet
-                          </Label>
-                          <span className="text-[#3C2317] font-bold text-sm whitespace-nowrap ml-2">
-                            {formData.hasChildren
-                              ? "FREE with children"
-                              : `AED ${settings?.addOnPrices?.portableToilet || 200}`}
-                          </span>
-                        </div>
-                        <p className="text-xs text-[#3C2317]/80 mt-1">Private, clean facilities for your comfort</p>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {settings?.customAddOns && settings.customAddOns.length > 0 && (
-                <Card className="border-[#D3B88C]/50 shadow-lg hover:shadow-xl transition-all duration-300 bg-[#FBF9D9]/80 backdrop-blur-sm !pt-0">
-                  <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 border-b border-[#D3B88C]/50  h-12 py-3">
-                    <CardTitle className="text-[#3C2317] flex items-center justify-between text-lg">
-                      <span>Exclusive Services</span>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={handleManualRefresh}
-                        disabled={loadingSettings}
-                        className="text-[#3C2317] hover:text-[#3C2317]/80 hover:bg-[#3C2317]/10 p-1"
-                      >
-                        {loadingSettings ? <Loader2 className="w-3 h-3 animate-spin" /> : "Refresh"}
-                      </Button>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-4 space-y-1">
-                    {settings.customAddOns.map((addon) => (
-                      <div
-                        key={addon.id}
-                        className="flex items-start space-x-3 p-3 rounded-xl hover:bg-[#E6CFA9]/50 transition-all duration-300 border border-transparent hover:border-[#D3B88C]/30"
-                      >
-                        <Checkbox
-                          id={`custom-${addon.id}`}
-                          checked={selectedCustomAddOns.includes(addon.id)}
-                          onCheckedChange={(checked) => handleCustomAddOnChange(addon.id, checked as boolean)}
-                          className="border-2 border-[#3C2317] data-[state=checked]:bg-[#3C2317] data-[state=checked]:border-[#3C2317] h-4 w-4 mt-0.5 flex-shrink-0 cursor-pointer"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <div className="flex justify-between items-start mb-1">
-                            <Label
-                              htmlFor={`custom-${addon.id}`}
-                              className="text-[#3C2317] font-medium text-sm cursor-pointer"
-                            >
-                              {addon.name}
-                            </Label>
-                            <span className="text-[#3C2317] font-bold text-sm whitespace-nowrap ml-2">
-                              AED {addon.price}
-                            </span>
-                          </div>
-                          {addon.description && <p className="text-xs text-[#3C2317]/80 mt-1">{addon.description}</p>}
-                        </div>
-                      </div>
-                    ))}
-                  </CardContent>
-                </Card>
-              )}
-
-              <Card className="border-[#D3B88C]/50 shadow-lg hover:shadow-xl transition-all duration-300 bg-[#FBF9D9]/80 backdrop-blur-sm !pt-0">
-                <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 border-b border-[#D3B88C]/50  h-12 py-3">
-                  <CardTitle className="text-[#3C2317] text-lg">Special Requests</CardTitle>
+               <Card className="border-[#D3B88C]/50 shadow-lg hover:shadow-xl transition-all duration-300 bg-[#FBF9D9]/80 backdrop-blur-sm !pt-0">
+                <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 border-b border-[#D3B88C]/50 h-12 py-3">
+                  <CardTitle className="text-[#3C2317] text-lg">Step 6: Special Requests</CardTitle>
                 </CardHeader>
                 <CardContent className="p-4 sm:p-6">
                   <Label htmlFor="notes" className="text-[#3C2317] mb-2 block font-medium">
@@ -1354,86 +1344,68 @@ export default function BookingPage() {
                 </CardContent>
               </Card>
 
-              <div className="grid md:grid-cols-2 gap-3 sm:gap-4">
-                <Card className="border-[#D3B88C]/50 shadow-lg bg-gradient-to-br from-[#FBF9D9] to-[#E6CFA9] !py-0">
-                  <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 border-b border-[#D3B88C]  h-12 py-3">
-                    <CardTitle className="text-[#3C2317] flex items-center text-lg">
-                      <Check className="w-4 h-4 mr-2" />
-                      Premium Inclusions
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-4">
-                    <ul className="space-y-2 text-[#3C2317] text-sm">
-                      <li className="flex items-start space-x-2">
-                        <Check className="w-4 h-4 mt-0.5 text-[#3C2317] flex-shrink-0" />
-                        <span>Luxury tent setup for up to 4 persons</span>
-                      </li>
-                      <li className="flex items-start space-x-2">
-                        <Check className="w-4 h-4 mt-0.5 text-[#3C2317] flex-shrink-0" />
-                        <span>Premium bedding & sleeping pillows</span>
-                      </li>
-                      <li className="flex items-start space-x-2">
-                        <Check className="w-4 h-4 mt-0.5 text-[#3C2317] flex-shrink-0" />
-                        <span>Winter bedding set & blankets</span>
-                      </li>
-                      <li className="flex items-start space-x-2">
-                        <Check className="w-4 h-4 mt-0.5 text-[#3C2317] flex-shrink-0" />
-                        <span>Professional fire pit setup</span>
-                      </li>
-                      <li className="flex items-start space-x-2">
-                        <Check className="w-4 h-4 mt-0.5 text-[#3C2317] flex-shrink-0" />
-                        <span>Safety equipment & fire extinguisher</span>
-                      </li>
-                      <li className="flex items-start space-x-2">
-                        <Check className="w-4 h-4 mt-0.5 text-[#3C2317] flex-shrink-0" />
-                        <span>Comfortable foldable furniture</span>
-                      </li>
-                      <li className="flex items-start space-x-2">
-                        <Check className="w-4 h-4 mt-0.5 text-[#3C2317] flex-shrink-0" />
-                        <span>Complete cooking equipment & utensils</span>
-                      </li>
-                      <li className="flex items-start space-x-2">
-                        <Check className="w-4 h-4 mt-0.5 text-[#3C2317] flex-shrink-0" />
-                        <span>Ambient lighting & power solutions</span>
-                      </li>
-                    </ul>
-                  </CardContent>
-                </Card>
+             <div className="grid md:grid-cols-2 gap-6">
+  {/* Premium Inclusions */}
+  <Card className="border border-[#D3B88C]/40 shadow-md bg-gradient-to-br from-[#FBF9D9] to-[#E6CFA9] rounded-2xl overflow-hidden !pt-0">
+    <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 px-5 h-13 py-4 border-b border-[#D3B88C]/30">
+      <CardTitle className="text-[#3C2317] flex items-center text-lg font-bold tracking-wide">
+        <Check className="w-5 h-5 mr-2 text-[#3C2317]" />
+        Premium Inclusions
+      </CardTitle>
+    </CardHeader>
+    <CardContent className="p-5">
+      <ul className="divide-y divide-[#3C2317]/15 text-sm text-[#3C2317]">
+        {[
+          "Luxury tent setup for up to 4 persons",
+          "Premium bedding & sleeping pillows",
+          "Winter bedding set & blankets",
+          "Professional fire pit setup",
+          "Safety equipment & fire extinguisher",
+          "Comfortable foldable furniture",
+          "Complete cooking equipment & utensils",
+          "Ambient lighting & power solutions",
+        ].map((item, i) => (
+          <li key={i} className="py-2 flex items-center">
+            <span className="mr-2 text-[#3C2317]/80">✓</span>
+            {item}
+          </li>
+        ))}
+      </ul>
+    </CardContent>
+  </Card>
 
-                <Card className="border-[#D3B88C]/50 shadow-lg bg-gradient-to-br from-[#FBF9D9] to-[#E6CFA9] !py-0">
-                  <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 border-b border-[#D3B88C]  h-12 py-3">
-                    <CardTitle className="text-[#3C2317] flex items-center text-lg">
-                      <X className="w-4 h-4 mr-2" />
-                      Not Included
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-4">
-                    <ul className="space-y-2 text-[#3C2317] text-sm">
-                      <li className="flex items-start space-x-2">
-                        <X className="w-4 h-4 mt-0.5 text-[#3C2317] flex-shrink-0" />
-                        <span>Food & beverages (bring your favorites)</span>
-                      </li>
-                      <li className="flex items-start space-x-2">
-                        <X className="w-4 h-4 mt-0.5 text-[#3C2317] flex-shrink-0" />
-                        <span>Fuel & charcoal (available as add-ons)</span>
-                      </li>
-                      <li className="flex items-start space-x-2">
-                        <X className="w-4 h-4 mt-0.5 text-[#3C2317] flex-shrink-0" />
-                        <span>Personal toiletries & towels</span>
-                      </li>
-                      <li className="flex items-start space-x-2">
-                        <X className="w-4 h-4 mt-0.5 text-[#3C2317] flex-shrink-0" />
-                        <span>Transportation to location</span>
-                      </li>
-                    </ul>
-                    <div className="mt-4 p-3 bg-[#E6CFA9] rounded-xl">
-                      <p className="text-xs text-[#3C2317] font-medium">
-                        💡 Pro Tip: We welcome you to bring your own food and drinks for a personalized experience!
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+  {/* Not Included */}
+  <Card className="border border-[#D3B88C]/40 shadow-md bg-gradient-to-br from-[#FBF9D9] to-[#E6CFA9] rounded-2xl overflow-hidden !pt-0">
+    <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 px-5 h-13 py-4 border-b border-[#D3B88C]/30">
+      <CardTitle className="text-[#3C2317] flex items-center text-lg font-bold tracking-wide">
+        <X className="w-5 h-5 mr-2 text-[#3C2317]" />
+        Not Included
+      </CardTitle>
+    </CardHeader>
+    <CardContent className="p-5">
+      <ul className="divide-y divide-[#3C2317]/15 text-sm text-[#3C2317]">
+        {[
+          "Food & beverages (bring your favorites)",
+          "Fuel & charcoal (available as add-ons)",
+          "Personal toiletries & towels",
+          "Transportation to location",
+        ].map((item, i) => (
+          <li key={i} className="py-2 flex items-center">
+            <span className="mr-2 text-[#3C2317]/80">✗</span>
+            {item}
+          </li>
+        ))}
+      </ul>
+
+      <div className="mt-5 p-4 bg-[#E6CFA9]/60 rounded-xl border border-[#D3B88C]/30">
+        <p className="text-xs text-[#3C2317] leading-relaxed">
+          💡 <span className="font-semibold">Pro Tip:</span> Bring your own food & drinks for a personalized experience!
+        </p>
+      </div>
+    </CardContent>
+  </Card>
+</div>
+
             </form>
           </div>
 
@@ -1561,31 +1533,55 @@ export default function BookingPage() {
                   </p>
                 </div>
 
-                <div className="bg-gradient-to-r from-[#E6CFA9]/50 to-[#D3B88C]/20 p-4 rounded-xl border border-[#3C2317]/10">
-                  <h4 className="font-bold text-[#3C2317] mb-3 text-base">Pricing Guide</h4>
-                  <ul className="text-sm text-[#3C2317]/80 space-y-1">
-                    <li className="flex justify-between">
-                      <span>Weekdays (Mon-Thu):</span>
-                      <span className="font-medium">AED 1297.80 + VAT</span>
-                    </li>
-                    <li className="flex justify-between">
-                      <span>Weekends (Fri-Sun):</span>
-                      <span className="font-medium">AED 1497.80 + VAT</span>
-                    </li>
-                    <li className="flex justify-between">
-                      <span>2+ tents (any day):</span>
-                      <span className="font-medium">AED 1297.80 each + VAT</span>
-                    </li>
-                    <li className="flex justify-between">
-                      <span>Wadi surcharge:</span>
-                      <span className="font-medium">AED {settings?.wadiSurcharge || 250}</span>
-                    </li>
-                    <li className="flex justify-between text-[#3C2317]">
-                      <span>Children bonus:</span>
-                      <span className="font-medium">FREE portable toilet</span>
-                    </li>
-                  </ul>
-                </div>
+                <div className="bg-gradient-to-r from-[#E6CFA9]/50 to-[#D3B88C]/20 p-5 rounded-2xl border border-[#3C2317]/10 shadow-md hover:shadow-lg transition-all duration-300">
+  <h4 className="font-bold text-[#3C2317] mb-4 text-lg border-b border-[#3C2317]/20 pb-2">
+    Pricing Guide
+  </h4>
+  <div className="space-y-3">
+    <div className="flex justify-between items-center">
+      <span className="text-sm text-[#3C2317]/80 flex items-center gap-2">
+        <i className="fa-regular fa-calendar-days"></i> Weekdays (Mon-Thu):
+      </span>
+      <span className="font-semibold text-sm text-[#3C2317]">
+        AED 1297.80 + VAT
+      </span>
+    </div>
+    <div className="flex justify-between items-center">
+      <span className="text-sm text-[#3C2317]/80 flex items-center gap-2">
+        <i className="fa-solid fa-calendar-week"></i> Weekends (Fri-Sun):
+      </span>
+      <span className="font-semibold text-sm text-[#3C2317]">
+        AED 1497.80 + VAT
+      </span>
+    </div>
+    <div className="flex justify-between items-center">
+      <span className="text-sm text-[#3C2317]/80 flex items-center gap-2">
+        <i className="fa-solid fa-campground"></i> 2+ tents (any day):
+      </span>
+      <span className="font-semibold text-sm text-[#3C2317]">
+        AED 1297.80 each + VAT
+      </span>
+    </div>
+    <div className="flex justify-between items-center">
+      <span className="text-sm text-[#3C2317]/80 flex items-center gap-2">
+        <i className="fa-solid fa-mountain"></i> Wadi surcharge:
+      </span>
+      <span className="font-semibold text-sm text-[#3C2317]">
+        AED {settings?.wadiSurcharge || 250}
+      </span>
+    </div>
+
+    <div className="flex justify-between items-center border-t border-[#3C2317]/20 pt-3 mt-2">
+      <span className="text-sm text-[#3C2317] flex items-center gap-2">
+        <i className="fa-solid fa-gift text-[#3C2317]"></i> Children bonus:
+      </span>
+      <span className="font-semibold text-sm text-[#3C2317]">
+        FREE portable toilet
+      </span>
+    </div>
+  </div>
+</div>
+
               </CardContent>
             </Card>
           </div>
