@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import { MapPin, Users, Plus, Minus, Check, X, Loader2, Star, Calendar, Shield } from "lucide-react"
+import { MapPin, Users, Plus, Minus, Check, X, Loader2, Calendar, Shield } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 import Image from "next/image"
@@ -298,7 +298,18 @@ export default function BookingPage() {
     const maxTentsPerBooking = 5
     const maxAllowed = Math.min(maxTentsPerBooking, dateConstraints.remainingCapacity || 10)
 
-    if (newCount >= 1 && newCount <= maxAllowed) {
+    if (increment && newCount > maxAllowed) {
+      if (dateConstraints.remainingCapacity && dateConstraints.remainingCapacity < maxTentsPerBooking) {
+        toast.error(
+          `Only ${dateConstraints.remainingCapacity} tent${dateConstraints.remainingCapacity === 1 ? "" : "s"} are available for this specific date.`,
+        )
+      } else {
+        toast.error(`Maximum ${maxTentsPerBooking} tents per booking`)
+      }
+      return
+    }
+
+    if (newCount >= 1 && (increment ? newCount <= maxAllowed : true)) {
       setFormData((prev) => {
         const newArrangements = Array.from({ length: newCount }, (_, i) => ({
           tentNumber: i + 1,
@@ -322,20 +333,22 @@ export default function BookingPage() {
         }
         setErrors(newErrors)
       }
-    } else if (newCount > maxAllowed) {
-      if (dateConstraints.remainingCapacity && dateConstraints.remainingCapacity < maxTentsPerBooking) {
-        toast.error(
-          `Only ${dateConstraints.remainingCapacity} tent${dateConstraints.remainingCapacity === 1 ? "" : "s"} available for this date`,
-        )
-      } else {
-        toast.error(`Maximum ${maxTentsPerBooking} tents per booking`)
-      }
     }
   }
 
   const handleAdultsChange = (increment: boolean) => {
     setUserInteracting(true, 3000)
     const newCount = increment ? adults + 1 : adults - 1
+    const totalPeople = newCount + children
+    const requiredCapacity = formData.numberOfTents * 4
+
+    if (increment && totalPeople > requiredCapacity) {
+      toast.error(
+        `You selected ${formData.numberOfTents} tent${formData.numberOfTents === 1 ? "" : "s"}, each tent accommodates 4 people including children.`,
+      )
+      return
+    }
+
     if (newCount >= 1 && newCount <= 20) {
       setAdults(newCount)
       setFormData((prev) => ({ ...prev, adults: newCount }))
@@ -345,6 +358,16 @@ export default function BookingPage() {
   const handleChildrenChange = (increment: boolean) => {
     setUserInteracting(true, 3000)
     const newCount = increment ? children + 1 : children - 1
+    const totalPeople = adults + newCount
+    const requiredCapacity = formData.numberOfTents * 4
+
+    if (increment && totalPeople > requiredCapacity) {
+      toast.error(
+        `You selected ${formData.numberOfTents} tent${formData.numberOfTents === 1 ? "" : "s"}, each tent accommodates 4 people including children.`,
+      )
+      return
+    }
+
     if (newCount >= 0 && newCount <= 10) {
       setChildren(newCount)
       setFormData((prev) => ({
@@ -629,19 +652,24 @@ export default function BookingPage() {
     setFormData((prev) => ({ ...prev, location }))
     setTouched((prev) => ({ ...prev, location: true }))
 
-    if (location === "Wadi" && formData.numberOfTents < 2) {
-      setErrors((prev) => ({
-        ...prev,
-        numberOfTents: "Wadi location requires at least 2 tents",
-      }))
-      setTouched((prev) => ({ ...prev, numberOfTents: true }))
-      toast.error("Wadi location requires minimum 2 tents")
+    if (location === "Wadi") {
+      if (formData.numberOfTents < 2 && dateConstraints.remainingCapacity >= 2) {
+        setErrors((prev) => ({
+          ...prev,
+          numberOfTents: "Wadi location requires at least 2 tents",
+        }))
+        setTouched((prev) => ({ ...prev, numberOfTents: true }))
+        toast.error("Wadi location requires minimum 2 tents")
+      }
     } else if (location !== "Wadi") {
       // Clear Wadi-specific errors when switching away from Wadi
       setErrors((prev) => {
         const newErrors = { ...prev }
         if (prev.numberOfTents === "Wadi location requires at least 2 tents") {
           delete newErrors.numberOfTents
+        }
+        if (prev.location?.includes("Wadi location requires minimum 2 tents")) {
+          delete newErrors.location
         }
         return newErrors
       })
@@ -664,8 +692,6 @@ export default function BookingPage() {
                 />
               </div>
             </Link>
-           
-           
           </div>
         </div>
       </nav>
@@ -691,6 +717,11 @@ export default function BookingPage() {
                     "/placeholder.svg" ||
                     "/placeholder.svg" ||
                     "/placeholder.svg" ||
+                    "/placeholder.svg" ||
+                    "/placeholder.svg" ||
+                    "/placeholder.svg" ||
+                    "/placeholder.svg" ||
+                    "/placeholder.svg" ||
                     "/placeholder.svg"
                   }
                   alt={campingImages[currentImageIndex].alt}
@@ -700,9 +731,7 @@ export default function BookingPage() {
                 <div className="absolute inset-0 bg-gradient-to-t from-[#3C2317]/40 via-transparent to-transparent"></div>
 
                 <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 text-[#FBF9D9]">
-                  <div className="flex items-center space-x-1 mb-1">
-                    
-                  </div>
+                  <div className="flex items-center space-x-1 mb-1"></div>
                   <p className="text-xs opacity-90 max-w-xs">{campingImages[currentImageIndex].alt}</p>
                 </div>
               </div>
@@ -830,7 +859,7 @@ export default function BookingPage() {
                         variant="outline"
                         size="sm"
                         onClick={() => handleAdultsChange(true)}
-                        disabled={adults >= 20}
+                        disabled={adults >= 20 || adults + children >= formData.numberOfTents * 4}
                         className="border-2 border-[#D3B88C] hover:border-[#3C2317] cursor-pointer hover:bg-[#D3B88C] transition-all duration-300 h-8 w-8 rounded-lg"
                       >
                         <Plus className="h-3 w-3" />
@@ -862,7 +891,7 @@ export default function BookingPage() {
                         variant="outline"
                         size="sm"
                         onClick={() => handleChildrenChange(true)}
-                        disabled={children >= 10}
+                        disabled={children >= 10 || adults + children >= formData.numberOfTents * 4}
                         className="border-2 border-[#D3B88C] hover:border-[#3C2317] cursor-pointer hover:bg-[#D3B88C] transition-all duration-300 h-8 w-8 rounded-lg"
                       >
                         <Plus className="h-3 w-3" />
@@ -1061,7 +1090,6 @@ export default function BookingPage() {
                         </p>
                       </div>
                     )}
-                   
                   </div>
                 </CardContent>
               </Card>
@@ -1135,7 +1163,6 @@ export default function BookingPage() {
                       <div className="space-y-2">
                         <div className="p-3 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
                           <div className="flex items-center space-x-2">
-                            
                             <div className="text-sm">
                               <span className="font-medium text-blue-800">Premium Wadi Location</span>
                               <p className="text-blue-700 mt-1">
@@ -1146,7 +1173,20 @@ export default function BookingPage() {
                           </div>
                         </div>
 
-                        {formData.numberOfTents < 2 && (
+                        {dateConstraints.remainingCapacity < 2 && (
+                          <div className="p-3 bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 rounded-lg">
+                            <div className="flex items-center space-x-2">
+                              <div className="w-2 h-2 bg-red-500 rounded-full flex-shrink-0"></div>
+                              <span className="text-sm font-medium text-red-800">
+                                Wadi requires 2 tents and on this date max {dateConstraints.remainingCapacity} tent
+                                {dateConstraints.remainingCapacity === 1 ? "" : "s"} you can book, so choose another
+                                date for this place
+                              </span>
+                            </div>
+                          </div>
+                        )}
+
+                        {formData.numberOfTents < 2 && dateConstraints.remainingCapacity >= 2 && (
                           <div className="p-3 bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 rounded-lg">
                             <div className="flex items-center space-x-2">
                               <div className="w-2 h-2 bg-red-500 rounded-full flex-shrink-0"></div>
@@ -1311,7 +1351,6 @@ export default function BookingPage() {
                     rows={3}
                     className="border-2 border-[#D3B88C] focus:border-[#3C2317] focus:ring-2 focus:ring-[#3C2317]/20 transition-all duration-300 rounded-xl resize-none text-sm"
                   />
-                 
                 </CardContent>
               </Card>
 
@@ -1401,10 +1440,8 @@ export default function BookingPage() {
           <div className="lg:col-span-1">
             <Card className="sticky top-16 sm:top-20 border-[#D3B88C]/50 shadow-2xl bg-gradient-to-br from-[#FBF9D9]/95 to-[#E6CFA9]/95 backdrop-blur-md overflow-hidden !pt-0 transform hover:scale-[1.02] transition-all duration-300">
               <CardHeader className="bg-gradient-to-r from-[#3C2317] to-[#5D4037] text-[#FBF9D9] p-4 sm:p-6 relative overflow-hidden">
-                
                 <div className="relative z-10">
                   <CardTitle className="text-xl font-bold flex items-center space-x-2">
-                   
                     <span>Booking Summary</span>
                   </CardTitle>
                   <p className="text-[#FBF9D9]/90 text-sm">Your luxury camping experience</p>
@@ -1447,7 +1484,6 @@ export default function BookingPage() {
                     <div className="mt-3 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-2">
-                         
                           <span className="text-blue-800 font-medium text-sm">Wadi Premium Location</span>
                         </div>
                         <span className="text-blue-900 font-semibold text-sm">
