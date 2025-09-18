@@ -716,7 +716,7 @@ export default function BookingPage() {
 
                 <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 text-[#FBF9D9]">
                   <div className="flex items-center space-x-1 mb-1"></div>
-                  <p className="text-xs opacity-90 max-w-xs">{campingImages[currentImageIndex].alt}</p>
+                  {/* <p className="text-xs opacity-90 max-w-xs">{campingImages[currentImageIndex].alt}</p> */}
                 </div>
               </div>
             </div>
