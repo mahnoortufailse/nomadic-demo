@@ -74,32 +74,37 @@ export default function AdminDashboard() {
   }, [])
 
   const fetchDashboardData = async () => {
-    try {
-      console.log("[v0] Fetching dashboard data...")
+  try {
+    setLoading(true);
+    
+    // Fetch stats
+    const statsResponse = await fetch("/api/stats");
+    if (!statsResponse.ok) throw new Error("Failed to fetch stats");
+    const statsData = await statsResponse.json();
+    setStats(statsData);
 
-      const statsResponse = await fetch("/api/stats")
-      const statsData = await statsResponse.json()
-      console.log("[v0] Stats data received:", statsData)
-      setStats(statsData)
+    // Fetch chart data
+    const chartResponse = await fetch("/api/charts");
+    if (!chartResponse.ok) throw new Error("Failed to fetch chart data");
+    const chartDataResponse = await chartResponse.json();
+    setChartData({
+      monthlyBookings: chartDataResponse.monthlyBookings || [],
+      locationStats: chartDataResponse.locationStats || [],
+    });
 
-      const chartResponse = await fetch("/api/charts")
-      const chartDataResponse = await chartResponse.json()
-      console.log("[v0] Chart data received:", chartDataResponse)
-      setChartData({
-        monthlyBookings: chartDataResponse.monthlyBookings,
-        locationStats: chartDataResponse.locationStats,
-      })
-
-      const bookingsResponse = await fetch("/api/bookings?isPaid=true&limit=10")
-      const bookingsData = await bookingsResponse.json()
-      console.log("[v0] Bookings data received:", bookingsData)
-      setBookings(bookingsData.bookings || [])
-    } catch (error) {
-      console.error("Error fetching dashboard data:", error)
-    } finally {
-      setLoading(false)
-    }
+    // Fetch recent bookings
+    const bookingsResponse = await fetch("/api/bookings?isPaid=true&limit=10");
+    if (!bookingsResponse.ok) throw new Error("Failed to fetch bookings");
+    const bookingsData = await bookingsResponse.json();
+    setBookings(bookingsData.bookings || []);
+    
+  } catch (error) {
+    console.error("Error fetching dashboard data:", error);
+    toast.error("Failed to load dashboard data");
+  } finally {
+    setLoading(false);
   }
+};
 
   const handleDeleteBooking = async (bookingId: string) => {
     setDeleteLoading(bookingId)

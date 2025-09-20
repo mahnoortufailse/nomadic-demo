@@ -1409,7 +1409,7 @@ export default function BookingPage() {
                 <Card className="border-[#D3B88C]/50 shadow-lg hover:shadow-xl transition-all duration-300 bg-[#FBF9D9]/80 backdrop-blur-sm !pt-0">
                   <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 border-b border-[#D3B88C]/50 h-10 sm:h-12 py-2 sm:py-3 px-3 sm:px-6">
                     <CardTitle className="text-[#3C2317] flex items-center justify-between text-sm sm:text-base lg:text-lg">
-                      <span>Exclusive Services</span>
+                      <span>Other Services</span>
                       <Button
                         type="button"
                         variant="ghost"
@@ -1768,7 +1768,7 @@ export default function BookingPage() {
                       <div className="flex items-center space-x-2">
                         <div className="w-2 h-2 bg-[#D3B88C] rounded-full"></div>
                         <span className="text-[#3C2317]/80 font-medium">
-                          Exclusive Services
+                          Other Services
                         </span>
                       </div>
                       <span className="text-[#3C2317] font-semibold">
