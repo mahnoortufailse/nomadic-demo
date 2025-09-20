@@ -2,7 +2,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { getDatabase } from "@/lib/mongodb"
 import type { Booking, BookingFormData } from "@/lib/types"
-import { calculateBookingPrice, fetchPricingSettings } from "@/lib/pricing"
+import { calculateBookingPrice } from "@/lib/pricing"
 
 export async function POST(request: NextRequest) {
   try {
@@ -100,9 +100,9 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const settings = await fetchPricingSettings()
+    const settings = await db.collection("settings").findOne({})
 
-    const customAddOnsWithSelection = (settings.customAddOns || []).map((addon: any) => ({
+    const customAddOnsWithSelection = (settings?.customAddOns || []).map((addon: any) => ({
       ...addon,
       selected: data.selectedCustomAddOns?.includes(addon.id) || false,
     }))
@@ -116,6 +116,21 @@ export async function POST(request: NextRequest) {
       customAddOnsWithSelection,
       settings,
     )
+
+    const selectedCustomAddOnsWithDetails = (data.selectedCustomAddOns || [])
+      .map((id: string) => {
+        const addon = (settings?.customAddOns || []).find((addon: any) => addon.id === id)
+        if (addon) {
+          return {
+            id: addon.id,
+            name: addon.name,
+            description: addon.description || "Custom service",
+            price: addon.price || 0,
+          }
+        }
+        return null
+      })
+      .filter(Boolean)
 
     // Create booking
     const booking: Omit<Booking, "_id"> = {
@@ -135,6 +150,7 @@ export async function POST(request: NextRequest) {
       vat: pricing.vat,
       total: pricing.total,
       selectedCustomAddOns: data.selectedCustomAddOns || [],
+      customAddOnsWithDetails: selectedCustomAddOnsWithDetails,
       isPaid: false,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -217,8 +233,77 @@ export async function GET(request: NextRequest) {
       db.collection("bookings").countDocuments(filter),
     ])
 
+    const settings = await db.collection("settings").findOne({})
+    const customAddOnsMap = new Map()
+
+    // Add all custom addons from settings (current active ones)
+    if (settings?.customAddOns) {
+      settings.customAddOns.forEach((addon: any) => {
+        const addonId = String(addon.id)
+        customAddOnsMap.set(addonId, {
+          id: addonId,
+          name: addon.name,
+          description: addon.description || "Custom service",
+          price: addon.price || 0,
+        })
+      })
+    }
+
+    // Also check if there's a separate customAddOns collection for historical data
+    try {
+      const customAddOns = await db.collection("customAddOns").find({}).toArray()
+      customAddOns.forEach((addon: any) => {
+        const addonId = addon._id?.toString() || String(addon.id)
+        // Only add if not already in the map (settings take priority)
+        if (!customAddOnsMap.has(addonId)) {
+          customAddOnsMap.set(addonId, {
+            id: addonId,
+            name: addon.name,
+            description: addon.description || "Custom service",
+            price: addon.price || 0,
+          })
+        }
+      })
+    } catch (error) {
+      // No separate customAddOns collection found, using settings only
+    }
+
+    // Enhance bookings with custom add-on details
+    const enhancedBookings = bookings.map((booking: any) => {
+      let customAddOnsWithDetails = booking.customAddOnsWithDetails || []
+
+      // If no stored details, try to reconstruct from current settings (legacy bookings)
+      if (!customAddOnsWithDetails || customAddOnsWithDetails.length === 0) {
+        customAddOnsWithDetails = (booking.selectedCustomAddOns || []).map((id: string) => {
+          const stringId = String(id)
+          const addon = customAddOnsMap.get(stringId)
+
+          if (addon) {
+            return {
+              id: addon.id,
+              name: addon.name,
+              description: addon.description,
+              price: addon.price,
+            }
+          } else {
+            return {
+              id: stringId,
+              name: `Custom Service (ID: ${stringId})`,
+              description: "This custom service is no longer available in settings",
+              price: 0,
+            }
+          }
+        })
+      }
+
+      return {
+        ...booking,
+        customAddOnsWithDetails,
+      }
+    })
+
     return NextResponse.json({
-      bookings,
+      bookings: enhancedBookings,
       pagination: {
         page,
         limit,

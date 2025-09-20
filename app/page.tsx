@@ -862,10 +862,91 @@ export default function BookingPage() {
 
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
           <div className="xl:col-span-2 space-y-3 sm:space-y-4 lg:space-y-6">
+           
+
             <Card className="border-[#D3B88C]/50 shadow-lg hover:shadow-xl transition-all duration-300 bg-[#FBF9D9]/80 backdrop-blur-sm !pt-0">
               <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 border-b border-[#D3B88C]/50 h-10 sm:h-12 py-2 sm:py-3 px-3 sm:px-6">
+                <CardTitle className="text-[#3C2317] flex items-center space-x-2 text-sm sm:text-base lg:text-lg">
+                  <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-[#3C2317]" />
+                  <span>Step 1: Choose your perfect date</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-3 sm:p-4 lg:p-6 !pt-0">
+                <div className="mb-2 sm:mb-3">
+                  <Label
+                    htmlFor="bookingDate"
+                    className="text-[#3C2317] font-medium mb-2 block text-xs sm:text-sm"
+                  >
+                    Select Date *
+                  </Label>
+                </div>
+
+                <Input
+                  id="bookingDate"
+                  type="date"
+                  value={formData.bookingDate}
+                  onChange={(e) => {
+                    handleInputChange("bookingDate", e.target.value);
+                    if (e.target.value) {
+                      setSelectedDate(new Date(e.target.value));
+                      validateField("bookingDate", e.target.value);
+                    }
+                  }}
+                  onBlur={(e) => handleBlur("bookingDate", e.target.value)}
+                  min={new Date().toISOString().split("T")[0]} // This disables past dates
+                  className={cn(
+                    "border-2 border-[#D3B88C] focus:border-[#3C2317] focus:ring-2 focus:ring-[#3C2317]/20 transition-all duration-300 h-9 sm:h-10 lg:h-12 rounded-lg sm:rounded-xl cursor-pointer text-xs sm:text-sm",
+                    errors.bookingDate &&
+                      touched.bookingDate &&
+                      "border-red-500 focus:border-red-500"
+                  )}
+                />
+                {errors.bookingDate && touched.bookingDate && (
+                  <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-xs sm:text-sm text-red-700 flex items-center space-x-2">
+                      <X className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                      <span>{errors.bookingDate}</span>
+                    </p>
+                  </div>
+                )}
+
+                <div className="mt-2">
+                  <p className="text-xs text-blue-700 flex items-center space-x-2">
+                    <Shield className="w-3 h-3 flex-shrink-0 text-blue-600" />
+                    <span>
+                      Minimum 2 days advance booking required for premium
+                      preparation
+                    </span>
+                  </p>
+                </div>
+                {formData.bookingDate &&
+                  dateConstraints.remainingCapacity !== undefined && (
+                    <div className="mt-2">
+                      {dateConstraints.remainingCapacity > 0 ? (
+                        <div className="flex items-center space-x-2 text-xs sm:text-sm">
+                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                          <span className="text-green-700">
+                            {dateConstraints.remainingCapacity} tent
+                            {dateConstraints.remainingCapacity === 1 ? "" : "s"}{" "}
+                            available (10 max per day)
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center space-x-2 text-xs sm:text-sm">
+                          <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                          <span className="text-red-700">
+                            Fully booked (10 tents maximum per day)
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+              </CardContent>
+            </Card>
+              <Card className="border-[#D3B88C]/50 shadow-lg hover:shadow-xl transition-all duration-300 bg-[#FBF9D9]/80 backdrop-blur-sm !pt-0">
+              <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 border-b border-[#D3B88C]/50 h-10 sm:h-12 py-2 sm:py-3 px-3 sm:px-6">
                 <CardTitle className="text-[#3C2317] text-sm sm:text-base lg:text-lg">
-                  Step 1: Location & Setup
+                  Step 2: Location & Setup
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-3 sm:p-4 lg:p-6 !pt-0 space-y-3 sm:space-y-4">
@@ -1023,87 +1104,6 @@ export default function BookingPage() {
                 </div>
               </CardContent>
             </Card>
-
-            <Card className="border-[#D3B88C]/50 shadow-lg hover:shadow-xl transition-all duration-300 bg-[#FBF9D9]/80 backdrop-blur-sm !pt-0">
-              <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 border-b border-[#D3B88C]/50 h-10 sm:h-12 py-2 sm:py-3 px-3 sm:px-6">
-                <CardTitle className="text-[#3C2317] flex items-center space-x-2 text-sm sm:text-base lg:text-lg">
-                  <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-[#3C2317]" />
-                  <span>Step 2: Choose your perfect date</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-3 sm:p-4 lg:p-6 !pt-0">
-                <div className="mb-2 sm:mb-3">
-                  <Label
-                    htmlFor="bookingDate"
-                    className="text-[#3C2317] font-medium mb-2 block text-xs sm:text-sm"
-                  >
-                    Select Date *
-                  </Label>
-                </div>
-
-                <Input
-                  id="bookingDate"
-                  type="date"
-                  value={formData.bookingDate}
-                  onChange={(e) => {
-                    handleInputChange("bookingDate", e.target.value);
-                    if (e.target.value) {
-                      setSelectedDate(new Date(e.target.value));
-                      validateField("bookingDate", e.target.value);
-                    }
-                  }}
-                  onBlur={(e) => handleBlur("bookingDate", e.target.value)}
-                  min={new Date().toISOString().split("T")[0]} // This disables past dates
-                  className={cn(
-                    "border-2 border-[#D3B88C] focus:border-[#3C2317] focus:ring-2 focus:ring-[#3C2317]/20 transition-all duration-300 h-9 sm:h-10 lg:h-12 rounded-lg sm:rounded-xl cursor-pointer text-xs sm:text-sm",
-                    errors.bookingDate &&
-                      touched.bookingDate &&
-                      "border-red-500 focus:border-red-500"
-                  )}
-                />
-                {errors.bookingDate && touched.bookingDate && (
-                  <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-lg">
-                    <p className="text-xs sm:text-sm text-red-700 flex items-center space-x-2">
-                      <X className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                      <span>{errors.bookingDate}</span>
-                    </p>
-                  </div>
-                )}
-
-                <div className="mt-2">
-                  <p className="text-xs text-blue-700 flex items-center space-x-2">
-                    <Shield className="w-3 h-3 flex-shrink-0 text-blue-600" />
-                    <span>
-                      Minimum 2 days advance booking required for premium
-                      preparation
-                    </span>
-                  </p>
-                </div>
-                {formData.bookingDate &&
-                  dateConstraints.remainingCapacity !== undefined && (
-                    <div className="mt-2">
-                      {dateConstraints.remainingCapacity > 0 ? (
-                        <div className="flex items-center space-x-2 text-xs sm:text-sm">
-                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                          <span className="text-green-700">
-                            {dateConstraints.remainingCapacity} tent
-                            {dateConstraints.remainingCapacity === 1 ? "" : "s"}{" "}
-                            available (10 max per day)
-                          </span>
-                        </div>
-                      ) : (
-                        <div className="flex items-center space-x-2 text-xs sm:text-sm">
-                          <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                          <span className="text-red-700">
-                            Fully booked (10 tents maximum per day)
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  )}
-              </CardContent>
-            </Card>
-
             <form className="space-y-3 sm:space-y-4 lg:space-y-6">
               <Card className="border-[#D3B88C]/50 shadow-lg hover:shadow-xl transition-all duration-300 bg-[#FBF9D9]/80 backdrop-blur-sm !pt-0">
                 <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 border-b border-[#D3B88C]/50 h-10 sm:h-12 py-2 sm:py-3 px-3 sm:px-6">
