@@ -4,6 +4,13 @@ import { getDatabase } from "@/lib/mongodb"
 export async function GET() {
   try {
     const db = await getDatabase()
+    if (!db) {
+      return NextResponse.json(
+        { error: "Database connection failed" },
+        { status: 500 }
+      )
+    }
+
     const allBookings = await db.collection("bookings").find({}).toArray()
     const paidBookings = allBookings.filter((b) => b.isPaid === true)
 
@@ -14,7 +21,13 @@ export async function GET() {
       pendingBookings: allBookings.filter((b) => b.isPaid === false).length,
     }
 
-    return NextResponse.json(stats)
+    return NextResponse.json(stats, {
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      }
+    })
   } catch (error) {
     console.error("Error fetching stats:", error)
     return NextResponse.json(

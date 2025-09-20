@@ -76,26 +76,39 @@ export default function AdminDashboard() {
   const fetchDashboardData = async () => {
   try {
     setLoading(true);
+    console.log("Fetching dashboard data...");
     
     // Fetch stats
-    const statsResponse = await fetch("/api/stats");
+    const statsResponse = await fetch("/api/stats", {
+      cache: 'no-store' // Prevent caching
+    });
+    console.log("Stats response status:", statsResponse.status);
     if (!statsResponse.ok) throw new Error("Failed to fetch stats");
     const statsData = await statsResponse.json();
+    console.log("Stats data:", statsData);
     setStats(statsData);
 
     // Fetch chart data
-    const chartResponse = await fetch("/api/charts");
+    const chartResponse = await fetch("/api/charts", {
+      cache: 'no-store' // Prevent caching
+    });
+    console.log("Chart response status:", chartResponse.status);
     if (!chartResponse.ok) throw new Error("Failed to fetch chart data");
     const chartDataResponse = await chartResponse.json();
+    console.log("Chart data:", chartDataResponse);
     setChartData({
       monthlyBookings: chartDataResponse.monthlyBookings || [],
       locationStats: chartDataResponse.locationStats || [],
     });
 
     // Fetch recent bookings
-    const bookingsResponse = await fetch("/api/bookings?isPaid=true&limit=10");
+    const bookingsResponse = await fetch("/api/bookings?isPaid=true&limit=10", {
+      cache: 'no-store' // Prevent caching
+    });
+    console.log("Bookings response status:", bookingsResponse.status);
     if (!bookingsResponse.ok) throw new Error("Failed to fetch bookings");
     const bookingsData = await bookingsResponse.json();
+    console.log("Bookings data:", bookingsData);
     setBookings(bookingsData.bookings || []);
     
   } catch (error) {
