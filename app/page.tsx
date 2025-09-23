@@ -839,8 +839,8 @@ export default function BookingPage() {
                       Know Before You Go
                     </h3>
                   </div>
-                  <ul className="mt-3 sm:mt-4  gap-y-2 gap-x-4 text-xs sm:text-sm text-[#3C2317]/90 leading-relaxed">
-                    <li className="flex items-start gap-2">
+                  <ul className="mt-3 sm:mt-4 space-y-2.5 gap-y-4 gap-x-4 text-xs sm:text-sm text-[#3C2317]/90 leading-relaxed">
+                    <li className="flex items-start gap-2 ">
                       <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full ring-1 ring-[#D3B88C] text-[#3C2317]">
                         <Check className="w-3 h-3" />
                       </span>
@@ -947,7 +947,7 @@ export default function BookingPage() {
                       Cancellation Policy
                     </h3>
                   </div>
-                  <ul className="mt-3 sm:mt-4 gap-y-2 gap-x-4 text-xs sm:text-sm text-[#3C2317]/90 leading-relaxed">
+                  <ul className="mt-3 sm:mt-4 space-y-2.5 gap-y-2 gap-x-4 text-xs sm:text-sm text-[#3C2317]/90 leading-relaxed">
                     <li className="flex items-start gap-2">
                       <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full ring-1 ring-[#D3B88C] text-[#3C2317]">
                         <X className="w-3 h-3" />
