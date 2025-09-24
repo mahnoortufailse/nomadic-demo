@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import { MapPin, Users, Plus, Minus, Check, X, Loader2, Calendar, Shield } from "lucide-react"
+import { MapPin, Users, Plus, Minus, Check, X, Loader2, Calendar, Shield, Compass } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 import Image from "next/image"
@@ -58,6 +58,7 @@ export default function BookingPage() {
   const isRefreshing = useRef(false)
 
   const [uiStep, setUiStep] = useState(1)
+  const [showBookingFlow, setShowBookingFlow] = useState(false)
 
   const [formData, setFormData] = useState<BookingFormData>({
     customerName: "",
@@ -88,6 +89,18 @@ export default function BookingPage() {
   const [touched, setTouched] = useState<Record<string, boolean>>({})
 
   const [locationMessage, setLocationMessage] = useState("")
+  const stepperSectionRef = useRef<HTMLDivElement>(null)
+
+  const scrollToStepperTop = () => {
+    stepperSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+  }
+
+  const handleStepChange = (newStep: number) => {
+    setUiStep(newStep)
+    setTimeout(() => {
+      scrollToStepperTop()
+    }, 100)
+  }
 
   const campingImages = [
     {
@@ -688,9 +701,6 @@ export default function BookingPage() {
         if (prev.numberOfTents === "Wadi location requires at least 2 tents") {
           delete newErrors.numberOfTents
         }
-        if (prev.location?.includes("Wadi location requires minimum 2 tents")) {
-          delete newErrors.location
-        }
         return newErrors
       })
     }
@@ -699,7 +709,7 @@ export default function BookingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#FBF9D9] via-[#E6CFA9] to-[#D3B88C]">
       <nav className="bg-[#3C2317]/90 backdrop-blur-md border-b border-[#3C2317]/50 shadow-lg sticky top-0 z-50 transition-all duration-300">
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-2 sm:py-3">
+        <div className="max-w-7xl mx-auto px-4 lg:px-6 py-3">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center space-x-2 group">
               <div className="relative">
@@ -708,7 +718,7 @@ export default function BookingPage() {
                   alt="NOMADIC"
                   width={120}
                   height={40}
-                  className="h-6 sm:h-8 md:h-10 w-auto group-hover:scale-105 transition-all duration-300"
+                  className="h-8 md:h-10 w-auto group-hover:scale-105 transition-all duration-300"
                 />
               </div>
             </Link>
@@ -716,23 +726,15 @@ export default function BookingPage() {
         </div>
       </nav>
 
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-10 py-3 sm:py-4 lg:py-6">
-        <div className="mb-4 sm:mb-6 lg:mb-8 animate-fade-in-up">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-4 mb-3 sm:mb-4 lg:mb-6">
+      <div className="max-w-7xl mx-auto px-4 lg:px-10 py-6">
+        <div className={cn("mb-8 animate-fade-in-up", showBookingFlow && "hidden")}>
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
             <div className="lg:col-span-3">
-              <div className="relative h-[180px] xs:h-[220px] sm:h-[300px] md:h-[380px] lg:h-[420px] rounded-lg sm:rounded-xl overflow-hidden shadow-xl group">
+              <div className="relative h-[300px] md:h-[420px] rounded-xl overflow-hidden shadow-xl group">
                 <Image
                   src={
                     campingImages[currentImageIndex].src ||
                     "/placeholder.svg?height=420&width=1000&query=luxury desert camping" ||
-                    "/placeholder.svg" ||
-                    "/placeholder.svg" ||
-                    "/placeholder.svg" ||
-                    "/placeholder.svg" ||
-                    "/placeholder.svg" ||
-                    "/placeholder.svg" ||
-                    "/placeholder.svg" ||
-                    "/placeholder.svg" ||
                     "/placeholder.svg"
                   }
                   alt={campingImages[currentImageIndex].alt}
@@ -741,17 +743,13 @@ export default function BookingPage() {
                   priority={currentImageIndex === 0}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#3C2317]/40 via-transparent to-transparent"></div>
-
-                <div className="absolute bottom-2 sm:bottom-3 lg:bottom-4 left-2 sm:left-3 lg:left-4 text-[#FBF9D9]">
-                  <div className="flex items-center space-x-1 mb-1"></div>
-                </div>
               </div>
             </div>
-            <div className="grid grid-cols-4 sm:grid-cols-2 lg:grid-cols-1 gap-1 sm:gap-2">
+            <div className="grid grid-cols-4 lg:grid-cols-1 gap-2">
               {campingImages.slice(1, 5).map((image, index) => (
                 <div
                   key={index}
-                  className="relative h-[60px] xs:h-[70px] sm:h-[90px] md:h-[95px] lg:h-[95px] rounded-md sm:rounded-lg overflow-hidden shadow-md cursor-pointer group transition-all duration-300 hover:shadow-xl hover:scale-105"
+                  className="relative h-[70px] lg:h-[95px] rounded-lg overflow-hidden shadow-md cursor-pointer group transition-all duration-300 hover:shadow-xl hover:scale-105"
                   onClick={() => setCurrentImageIndex(index + 1)}
                 >
                   <Image
@@ -762,156 +760,49 @@ export default function BookingPage() {
                   />
                   <div className="absolute inset-0 bg-[#3C2317]/20 group-hover:bg-[#3C2317]/10 transition-colors duration-300"></div>
                   {currentImageIndex === index + 1 && (
-                    <div className="absolute inset-0 border-2 border-[#D3B88C] rounded-md sm:rounded-lg"></div>
+                    <div className="absolute inset-0 border-2 border-[#D3B88C] rounded-lg"></div>
                   )}
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Restructured middle section into a responsive 2-column layout.
-              Moved "Highlights" and "Included/Not Included" to a right-side aside.
-              Left column retains accordion + informational cards.
-              Hero, Stepper, and Booking Summary remain unchanged. */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8 lg:mb-10">
-            {/* LEFT: Details and info */}
-            <div className="lg:col-span-2 space-y-3 sm:space-y-4 lg:space-y-6">
-              <div className="text-left mb-3 sm:mb-4 lg:mb-6">
-                <h1 className="text-xl xs:text-2xl sm:text-3xl md:text-4xl lg:text-4xl font-bold text-[#3C2317] mb-2 sm:mb-3 text-balance px-2 sm:px-0">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
+            {/* LEFT: Main description and CTA */}
+            <div className="lg:col-span-2 space-y-6">
+              <div className="text-left">
+                <h1 className="text-2xl md:text-3xl font-bold text-[#3C2317] mb-3 text-balance">
                   Nomadic Camping Rental Setups
                 </h1>
-                <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between mb-2 sm:mb-3 lg:mb-4">
-                  <div className="flex flex-wrap items-start justify-start lg:justify-start gap-2 sm:gap-3 mb-2 sm:mb-3 lg:mb-0 px-2 sm:px-0">
-                    <div className="flex items-center space-x-1 text-[#3C2317]/80">
-                      <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-[#D3B88C]" />
-                      <span className="text-xs sm:text-sm font-medium">Desert • Wadi • Mountain</span>
-                    </div>
-                    <div className="flex items-center space-x-1 text-[#3C2317]/80">
-                      <Shield className="w-3 h-3 sm:w-4 sm:h-4 text-[#D3B88C]" />
-                      <span className="text-xs sm:text-sm font-medium">Private & Secure</span>
-                    </div>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="flex items-center space-x-1 text-[#3C2317]/80">
+                    <MapPin className="w-4 h-4 text-[#D3B88C]" />
+                    <span className="text-sm font-medium">Desert • Wadi • Mountain</span>
                   </div>
                 </div>
-                <p className="text-xs sm:text-sm md:text-sm text-[#3C2317]/80 max-w-2xl text-pretty  lg:mx-0 px-2 sm:px-0 leading-relaxed">
+                <p className="text-sm text-[#3C2317]/80 max-w-3xl text-pretty leading-relaxed mb-4">
                   Nomadic was created to make camping magical, stress-free, and unforgettable. Forget about buying
                   expensive gear, figuring out how to pitch a tent, or packing endless supplies. With Nomadic, your
                   private campsite is fully set up before you arrive - all you need to bring is your food, drinks, and
                   sense of adventure.
                 </p>
-                <p className="hidden sm:block text-xs sm:text-sm md:text-sm text-[#3C2317]/80 max-w-2xl text-pretty lg:mx-0 px-2 sm:px-0 leading-relaxed mt-3">
+                <p className="hidden sm:block text-sm text-[#3C2317]/80 max-w-3xl text-pretty leading-relaxed">
                   Experience the UAE's most luxurious camping adventure with Nomadic. We handle all the setup, so you
                   can focus on making memories. Our premium tents are equipped with everything you need for a
-                  comfortable and unforgettable stay under the stars. Choose from stunning desert or serene wadi
-                  locations, and let us create your perfect escape. Whether it's a romantic getaway, a family adventure,
-                  or a unique celebration, Nomadic offers a seamless and magical camping experience. We provide
-                  high-quality equipment, ensuring your comfort and safety, allowing you to immerse yourself in the
-                  beauty of the Emirates' natural landscapes. Book your adventure today and discover the ease of luxury
-                  camping with Nomadic.
+                  comfortable and unforgettable stay under the stars.
                 </p>
               </div>
-              {/* Read full details (accordion) */}
-              <div className="mx-auto lg:mx-0 px-2 sm:px-0 block sm:hidden">
-                <Accordion type="single" collapsible className="w-full !py-0 !my-0">
-                  <AccordionItem value="details">
-                    <AccordionTrigger className="text-[#3C2317] text-sm sm:text-base">
-                      Read full details
-                    </AccordionTrigger>
-                    <AccordionContent className="text-[#3C2317]/80 text-xs sm:text-sm leading-relaxed bg-[#E6CFA9]/30 rounded-md p-3">
-                      {
-                        "Experience the UAE's most luxurious camping adventure with Nomadic. We handle all the setup, so you can focus on making memories. Our premium tents are equipped with everything you need for a comfortable and unforgettable stay under the stars. Choose from stunning desert or serene wadi locations, and let us create your perfect escape. Whether it's a romantic getaway, a family adventure, or a unique celebration, Nomadic offers a seamless and magical camping experience. We provide high-quality equipment, ensuring your comfort and safety, allowing you to immerse yourself in the beauty of the Emirates' natural landscapes. Book your adventure today and discover the ease of luxury camping with Nomadic."
-                      }
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-              </div>
-              <div className="space-y-10">
-                {/* Know Before You Go */}
-                {/* Redesign: dashed left border, ringed icon, uppercase header, ringed bullets, no backgrounds */}
-                <section aria-labelledby="kbyg-title" className="pl-3 sm:pl-4 border-l-3 border-[#D3B88C]">
-                  <div className="flex items-center gap-2">
-                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full ring-1 ring-[#D3B88C] text-[#3C2317]">
-                      <Shield className="w-3.5 h-3.5" />
-                    </span>
-                    <h3
-                      id="kbyg-title"
-                      className="text-[#3C2317] text-sm sm:text-base lg:text-lg font-extrabold tracking-widest uppercase"
-                    >
-                      Know Before You Go
-                    </h3>
-                  </div>
-                  <ul className="mt-3 sm:mt-4 space-y-2.5 gap-y-4 gap-x-4 text-xs sm:text-sm text-[#3C2317]/90 leading-relaxed">
-                    <li className="flex items-start gap-2 ">
-                      <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full ring-1 ring-[#D3B88C] text-[#3C2317]">
-                        <Check className="w-3 h-3" />
-                      </span>
-                      <span>
-                        <strong className="text-[#3C2317]">Getting There:</strong> all cars can reach the meeting point;
-                        transfers available if you {`don't`} have a 4x4.
-                      </span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full ring-1 ring-[#D3B88C] text-[#3C2317]">
-                        <Check className="w-3 h-3" />
-                      </span>
-                      <span>
-                        <strong className="text-[#3C2317]">Meeting Point:</strong> Google Maps pin sent by email after
-                        booking.
-                      </span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full ring-1 ring-[#D3B88C] text-[#3C2317]">
-                        <Check className="w-3 h-3" />
-                      </span>
-                      <span>
-                        <strong className="text-[#3C2317]">Clothing:</strong> evenings can be chilly, bring warm
-                        clothes.
-                      </span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full ring-1 ring-[#D3B88C] text-[#3C2317]">
-                        <Check className="w-3 h-3" />
-                      </span>
-                      <span>
-                        <strong className="text-[#3C2317]">Pets:</strong> welcome with own bedding, provided they{" "}
-                        {`don't`} damage equipment.
-                      </span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full ring-1 ring-[#D3B88C] text-[#3C2317]">
-                        <Check className="w-3 h-3" />
-                      </span>
-                      <span>
-                        <strong className="text-[#3C2317]">Environment:</strong> take all trash with you
-                        (#LeaveNoTrace).
-                      </span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full ring-1 ring-[#D3B88C] text-[#3C2317]">
-                        <Check className="w-3 h-3" />
-                      </span>
-                      <span>
-                        <strong className="text-[#3C2317]">What to Bring:</strong> food, drinks, charcoal/firewood (or
-                        add-ons), power bank (generator available for AED 250 + VAT).
-                      </span>
-                    </li>
-                  </ul>
-                </section>
 
+              <div className="space-y-6">
                 {/* Itinerary */}
-                {/* Redesign: dashed left border, ringed icon, uppercase header, timeline with connecting vertical lines */}
-                <section aria-labelledby="itinerary-title" className="pl-3 sm:pl-4 border-l-3 border-[#D3B88C]">
-                  <div className="flex items-center gap-2">
+                <section className="pl-3 border-l-3 border-[#D3B88C]">
+                  <div className="flex items-center gap-2 mb-3">
                     <span className="inline-flex h-6 w-6 items-center justify-center rounded-full ring-1 ring-[#D3B88C] text-[#3C2317]">
                       <Calendar className="w-3.5 h-3.5" />
                     </span>
-                    <h3
-                      id="itinerary-title"
-                      className="text-[#3C2317] text-sm sm:text-base lg:text-lg font-extrabold tracking-widest uppercase"
-                    >
-                      Itinerary
-                    </h3>
+                    <h3 className="text-[#3C2317] text-base font-extrabold tracking-widest uppercase">Itinerary</h3>
                   </div>
-                  <ol className="mt-3 sm:mt-4 space-y-3">
+                  <ol className="space-y-3">
                     {[
                       "Arrival at meeting point (16:30, 17:00, or 17:30 – see booking confirmation)",
                       "Meet camp leader, transfer or drive to camp",
@@ -922,87 +813,132 @@ export default function BookingPage() {
                     ].map((step, idx, arr) => (
                       <li
                         key={idx}
-                        className="relative flex items-start gap-3 text-xs sm:text-sm text-[#3C2317]/90 leading-relaxed"
+                        className="relative flex items-start gap-3 text-xs text-[#3C2317]/90 leading-relaxed"
                       >
-                        <span className="relative mt-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#3C2317] text-[#FBF9D9] text-[10px] sm:text-xs font-bold ring-1 ring-[#D3B88C]">
+                        <span className="relative mt-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#3C2317] text-[#FBF9D9] text-xs font-bold ring-1 ring-[#D3B88C] flex-shrink-0">
                           {idx + 1}
                         </span>
                         {idx < arr.length - 1 && (
                           <span aria-hidden className="absolute left-3 top-6 bottom-[-10px] w-px bg-[#3C2317]/30" />
                         )}
-                        <span>{step}</span>
+                        <span className="flex-1 min-w-0">{step}</span>
                       </li>
                     ))}
                   </ol>
                 </section>
 
-                {/* Cancellation Policy */}
-                {/* Redesign: dashed left border, ringed icon, uppercase header, ringed bullets, no backgrounds */}
-                <section aria-labelledby="cancel-title" className="pl-3 sm:pl-4 border-l-3  border-[#D3B88C]">
-                  <div className="flex items-center gap-2">
-                    <h3
-                      id="cancel-title"
-                      className="text-[#3C2317] text-sm sm:text-base lg:text-lg font-extrabold tracking-widest uppercase"
-                    >
-                      Cancellation Policy
+                {/* Know Before You Go */}
+                <section className="pl-3 border-l-3 border-[#D3B88C]">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full ring-1 ring-[#D3B88C] text-[#3C2317]">
+                      <Compass className="w-3.5 h-3.5" />
+                    </span>
+                    <h3 className="text-[#3C2317] text-base font-extrabold tracking-widest uppercase">
+                      Know Before You Go
                     </h3>
                   </div>
-                  <ul className="mt-3 sm:mt-4 space-y-2.5 gap-y-2 gap-x-4 text-xs sm:text-sm text-[#3C2317]/90 leading-relaxed">
-                    <li className="flex items-start gap-2">
-                      <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full ring-1 ring-[#D3B88C] text-[#3C2317]">
-                        <X className="w-3 h-3" />
-                      </span>
-                      <span>All bookings non-refundable</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full ring-1 ring-[#D3B88C] text-[#3C2317]">
-                        <X className="w-3 h-3" />
-                      </span>
-                      <span>Free date changes up to 72 hours before arrival (subject to availability)</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full ring-1 ring-[#D3B88C] text-[#3C2317]">
-                        <X className="w-3 h-3" />
-                      </span>
-                      <span>Changes within 72 hours incur additional fees</span>
-                    </li>
+                  <ul className="space-y-2 text-xs text-[#3C2317]/90 leading-relaxed">
+                    {[
+                      {
+                        title: "Getting There",
+                        content: "all cars can reach the meeting point; transfers available if you don't have a 4x4.",
+                      },
+                      { title: "Meeting Point", content: "Google Maps pin sent by email after booking." },
+                      { title: "Clothing", content: "evenings can be chilly, bring warm clothes." },
+                      { title: "Pets", content: "welcome with own bedding, provided they don't damage equipment." },
+                      { title: "Environment", content: "take all trash with you (#LeaveNoTrace)." },
+                      {
+                        title: "What to Bring",
+                        content:
+                          "food, drinks, charcoal/firewood (or add-ons), power bank (generator available for AED 250 + VAT).",
+                      },
+                    ].map((item, i) => (
+                      <li key={i} className="flex items-start gap-2">
+                        <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full ring-1 ring-[#D3B88C] text-[#3C2317] flex-shrink-0">
+                          <Check className="w-3 h-3" />
+                        </span>
+                        <span className="flex-1 min-w-0">
+                          <strong className="text-[#3C2317]">{item.title}:</strong> {item.content}
+                        </span>
+                      </li>
+                    ))}
                   </ul>
                 </section>
 
-                {/* add CTA section directly below the three info cards (keep minimal styling, exact text) */}
-                <section className="!mt-6">
-                  <h3 className="text-[#3C2317] text-base sm:text-lg font-bold text-pretty">
-                    Ready for hassle-free camping?
-                  </h3>
-                  <p className="text-[#3C2317]/80 text-sm sm:text-base mt-1">
-                    Book your Nomadic setup now and experience the UAE’s wild beauty - without lifting a finger.
-                  </p>
-                  <div className="mt-3">
-                    <Button
-                      className="bg-[#3C2317] text-[#FBF9D9] hover:bg-[#3C2317]/90"
-                      onClick={() => {
-                        const el = document.getElementById("booking-stepper")
-                        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" })
-                      }}
-                    >
-                      Book now
-                    </Button>
+                {/* Cancellation Policy */}
+                <section className="pl-3 border-l-3 border-[#D3B88C]">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full ring-1 ring-[#D3B88C] text-[#3C2317]">
+                      <Shield className="w-3.5 h-3.5" />
+                    </span>
+                    <h3 className="text-[#3C2317] text-base font-extrabold tracking-widest uppercase">
+                      Cancellation Policy
+                    </h3>
                   </div>
+                  <ul className="space-y-2 text-xs text-[#3C2317]/90 leading-relaxed">
+                    {[
+                      "All bookings non-refundable",
+                      "Free date changes up to 72 hours before arrival (subject to availability)",
+                      "Changes within 72 hours incur additional fees",
+                    ].map((item, i) => (
+                      <li key={i} className="flex items-start gap-2">
+                        <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full ring-1 ring-[#D3B88C] text-[#3C2317] flex-shrink-0">
+                          <X className="w-3 h-3" />
+                        </span>
+                        <span className="flex-1 min-w-0">{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+
+                {/* CTA Section */}
+                <section className="bg-gradient-to-r from-[#E6CFA9] to-[#D3B88C] rounded-2xl p-8 text-center shadow-lg border border-[#3C2317]/10">
+                  <h2 className="text-[#3C2317] text-xl lg:text-2xl font-bold mb-3 text-balance">
+                    Ready for hassle-free camping?
+                  </h2>
+                  <p className="text-[#3C2317]/80 text-base mb-6 max-w-xl mx-auto leading-relaxed">
+                    Book your Nomadic setup now and experience the UAE's wild beauty - without lifting a finger.
+                  </p>
+                  <Button
+                    size="lg"
+                    className="bg-[#3C2317] text-[#FBF9D9] hover:bg-[#5D4037] font-bold text-xl px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer"
+                    onClick={() => {
+                      setShowBookingFlow(true)
+                      setTimeout(() => {
+                        stepperSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+                      }, 100)
+                    }}
+                  >
+                    Book Your Setup Now
+                  </Button>
                 </section>
               </div>
-            </div>
 
-            {/* RIGHT: Highlights + Included/Not Included */}
-            <aside className="space-y-3 sm:space-y-4 lg:space-y-6 lg:sticky lg:top-24 h-max">
-              <Card className="border border-[#D3B88C]/40 shadow-md bg-gradient-to-br from-[#FBF9D9] to-[#E6CFA9] rounded-xl lg:rounded-2xl overflow-hidden !pt-0">
-                <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 px-3 sm:px-5 h-10 sm:h-12 lg:h-13 py-2 sm:py-3 lg:py-4 border-b border-[#D3B88C]/30">
-                  <CardTitle className="text-[#3C2317] flex items-center text-sm sm:text-base lg:text-lg font-bold tracking-wide">
-                    <Check className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-[#3C2317]" />
+              {/* Mobile accordion for full details */}
+              <div className="block sm:hidden">
+                <Accordion type="single" collapsible className="w-full">
+                  <AccordionItem value="details">
+                    <AccordionTrigger className="text-[#3C2317] text-base">Read full details</AccordionTrigger>
+                    <AccordionContent className="text-[#3C2317]/80 text-sm leading-relaxed bg-[#E6CFA9]/30 rounded-md p-3">
+                      Experience the UAE's most luxurious camping adventure with Nomadic. We handle all the setup, so
+                      you can focus on making memories. Our premium tents are equipped with everything you need for a
+                      comfortable and unforgettable stay under the stars.
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              </div>
+            </div>
+{/* RIGHT: Highlights + Included/Not Included */}
+            <aside className="space-y-2 sm:space-y-3 lg:space-y-4 lg:sticky lg:top-24 h-max">
+              <Card className="border border-[#D3B88C]/40 shadow-md bg-gradient-to-br from-[#FBF9D9] to-[#E6CFA9] rounded-lg lg:rounded-xl overflow-hidden !pt-0">
+                <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 px-2 sm:px-3 lg:px-4 h-8 sm:h-10 py-1.5 sm:py-2 border-b border-[#D3B88C]/30">
+                  <CardTitle className="text-[#3C2317] flex items-center text-xs sm:text-sm lg:text-base font-bold tracking-wide">
+                    <Check className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 text-[#3C2317]" />
                     Highlights
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="p-3 sm:p-4 lg:p-5 !pt-0">
-                  <ul className="divide-y divide-[#3C2317]/15 text-xs sm:text-sm text-[#3C2317]">
+                <CardContent className="p-2 sm:p-3 lg:p-4 !pt-0">
+                  <ul className="divide-y divide-[#3C2317]/15 text-xs text-[#3C2317]">
                     {[
                       "Private Camping Setups in the Desert or Wadi",
                       "Complete Camping Rental Setup done for you",
@@ -1011,9 +947,9 @@ export default function BookingPage() {
                       "Exact Meeting Point Location shared upon booking",
                       "The perfect camping experience under the stars",
                     ].map((item, i) => (
-                      <li key={i} className="py-1.5 sm:py-2 flex items-center">
-                        <span className="mr-2 text-[#3C2317]/80">✓</span>
-                        {item}
+                      <li key={i} className="py-1 sm:py-1.5 flex items-start">
+                        <span className="mr-1.5 text-[#3C2317]/80 flex-shrink-0 mt-0.5">✓</span>
+                        <span className="flex-1 min-w-0">{item}</span>
                       </li>
                     ))}
                   </ul>
@@ -1021,17 +957,17 @@ export default function BookingPage() {
               </Card>
 
               {/* What's Included and Not Included stacked */}
-              <div className="grid grid-cols-1 gap-3 sm:gap-4">
+              <div className="grid grid-cols-1 gap-2 sm:gap-3">
                 {/* What's Included */}
-                <Card className="border border-[#D3B88C]/40 shadow-md bg-gradient-to-br from-[#FBF9D9] to-[#E6CFA9] rounded-xl lg:rounded-2xl overflow-hidden !pt-0">
-                  <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 px-3 sm:px-5 h-10 sm:h-12 lg:h-13 py-2 sm:py-3 lg:py-4 border-b border-[#D3B88C]/30">
-                    <CardTitle className="text-[#3C2317] flex items-center text-sm sm:text-base lg:text-lg font-bold tracking-wide">
-                      <Check className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-[#3C2317]" />
+                <Card className="border border-[#D3B88C]/40 shadow-md bg-gradient-to-br from-[#FBF9D9] to-[#E6CFA9] rounded-lg lg:rounded-xl overflow-hidden !pt-0">
+                  <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 px-2 sm:px-3 lg:px-4 h-8 sm:h-10 py-1.5 sm:py-2 border-b border-[#D3B88C]/30">
+                    <CardTitle className="text-[#3C2317] flex items-center text-xs sm:text-sm lg:text-base font-bold tracking-wide">
+                      <Check className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 text-[#3C2317]" />
                       What's Included
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="p-3 sm:p-4 lg:p-5 !pt-0">
-                    <ul className="divide-y divide-[#3C2317]/15 text-xs sm:text-sm text-[#3C2317]">
+                  <CardContent className="p-2 sm:p-3 lg:p-4 !pt-0">
+                    <ul className="divide-y divide-[#3C2317]/15 text-xs text-[#3C2317]">
                       {[
                         "Canvas Nomadic Tent (sleeps up to 4 people, singles & doubles available)",
                         "Beds with bedding, pillows, blankets",
@@ -1043,9 +979,9 @@ export default function BookingPage() {
                         "Plates, cutlery & picnic basket",
                         "Cooler box & raised table",
                       ].map((item, i) => (
-                        <li key={i} className="py-1.5 sm:py-2 flex items-center">
-                          <span className="mr-2 text-[#3C2317]/80">✓</span>
-                          {item}
+                        <li key={i} className="py-1 sm:py-1.5 flex items-start">
+                          <span className="mr-1.5 text-[#3C2317]/80 flex-shrink-0 mt-0.5">✓</span>
+                          <span className="flex-1 min-w-0">{item}</span>
                         </li>
                       ))}
                     </ul>
@@ -1053,29 +989,29 @@ export default function BookingPage() {
                 </Card>
 
                 {/* Not Included */}
-                <Card className="border border-[#D3B88C]/40 shadow-md bg-gradient-to-br from-[#FBF9D9] to-[#E6CFA9] rounded-xl lg:rounded-2xl overflow-hidden !pt-0">
-                  <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 px-3 sm:px-5 h-10 sm:h-12 lg:h-13 py-2 sm:py-3 lg:py-4 border-b border-[#D3B88C]/30">
-                    <CardTitle className="text-[#3C2317] flex items-center text-sm sm:text-base lg:text-lg font-bold tracking-wide">
-                      <X className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-[#3C2317]" />
+                <Card className="border border-[#D3B88C]/40 shadow-md bg-gradient-to-br from-[#FBF9D9] to-[#E6CFA9] rounded-lg lg:rounded-xl overflow-hidden !pt-0">
+                  <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 px-2 sm:px-3 lg:px-4 h-8 sm:h-10 py-1.5 sm:py-2 border-b border-[#D3B88C]/30">
+                    <CardTitle className="text-[#3C2317] flex items-center text-xs sm:text-sm lg:text-base font-bold tracking-wide">
+                      <X className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 text-[#3C2317]" />
                       Not Included
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="p-3 sm:p-4 lg:p-5 !pt-0">
-                    <ul className="divide-y divide-[#3C2317]/15 text-xs sm:text-sm text-[#3C2317]">
+                  <CardContent className="p-2 sm:p-3 lg:p-4 !pt-0">
+                    <ul className="divide-y divide-[#3C2317]/15 text-xs text-[#3C2317]">
                       {[
                         "Food & beverages",
                         "Transportation to the meeting point",
                         "Charcoal & firewood (available as add-ons)",
                         "Portable toilet setup (available as add-on)",
                       ].map((item, i) => (
-                        <li key={i} className="py-1.5 sm:py-2 flex items-center">
-                          <span className="mr-2 text-[#3C2317]/80">✗</span>
-                          {item}
+                        <li key={i} className="py-1 sm:py-1.5 flex items-start">
+                          <span className="mr-1.5 text-[#3C2317]/80 flex-shrink-0 mt-0.5">✗</span>
+                          <span className="flex-1 min-w-0">{item}</span>
                         </li>
                       ))}
                     </ul>
 
-                    <div className="mt-3 sm:mt-4 lg:mt-5 p-3 sm:p-4 bg-[#E6CFA9]/60 rounded-lg sm:rounded-xl border border-[#D3B88C]/30">
+                    <div className="mt-2 sm:mt-3 p-2 sm:p-3 bg-[#E6CFA9]/60 rounded-md sm:rounded-lg border border-[#D3B88C]/30">
                       <p className="text-xs text-[#3C2317] leading-relaxed">
                         💡 Pro Tip: Bring food, drinks, and a power bank. Add charcoal & firewood to your booking (or
                         bring your own) - everything else is already waiting.
@@ -1084,18 +1020,17 @@ export default function BookingPage() {
                   </CardContent>
                 </Card>
               </div>
-            </aside>
+            </aside> 
           </div>
-          {/* </CHANGE> */}
-
-          {/* NOTE: Removed original standalone Highlights and Included/Not Included blocks from this position. */}
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
+           <div
+          ref={stepperSectionRef}
+          className={cn("grid grid-cols-1 xl:grid-cols-3 gap-3 sm:gap-4 lg:gap-6", !showBookingFlow && "hidden")}
+        >
           <div className="xl:col-span-2 space-y-3 sm:space-y-4 lg:space-y-6">
             {/* add an invisible anchor above the Stepper for smooth scrolling */}
             <span id="booking-stepper" className="block h-0" aria-hidden />
-            {/* sync Stepper active with uiStep and allow clicking to jump between steps */}
             <Stepper
               active={uiStep}
               steps={[
@@ -1103,7 +1038,7 @@ export default function BookingPage() {
                 { label: "Step 2: Add-Ons Selection" },
                 { label: "Step 3: Add Personal Details" },
               ]}
-              onChange={(n) => setUiStep(n)}
+              onChange={handleStepChange}
             />
 
             {/* show only Step 1 card when uiStep === 1 and add Next button */}
@@ -1176,6 +1111,7 @@ export default function BookingPage() {
                     )}
                   </CardContent>
                 </Card>
+
                 <Card className="border-[#D3B88C]/50 shadow-lg hover:shadow-xl transition-all duration-300 bg-[#FBF9D9]/80 backdrop-blur-sm !pt-0">
                   <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 border-b border-[#D3B88C]/50 h-10 sm:h-12 py-2 sm:py-3 px-3 sm:px-6">
                     <CardTitle className="text-[#3C2317] text-sm sm:text-base lg:text-lg">Location & Setup</CardTitle>
@@ -1302,6 +1238,7 @@ export default function BookingPage() {
                     </div>
                   </CardContent>
                 </Card>
+
                 <Card className="border-[#D3B88C]/50 shadow-lg hover:shadow-xl transition-all duration-300 bg-[#FBF9D9]/80 backdrop-blur-sm !pt-0">
                   <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 border-b border-[#D3B88C]/50 h-10 sm:h-12 py-2 sm:py-3 px-3 sm:px-6">
                     <CardTitle className="text-[#3C2317] flex items-center space-x-2 text-sm sm:text-base lg:text-lg">
@@ -1473,7 +1410,7 @@ export default function BookingPage() {
                 <div className="flex justify-end pt-2 sm:pt-3">
                   <Button
                     type="button"
-                    onClick={() => setUiStep(2)}
+                    onClick={() => handleStepChange(2)}
                     className="bg-[#3C2317] text-[#FBF9D9] hover:bg-[#5D4037] cursor-pointer"
                   >
                     Next
@@ -1615,20 +1552,19 @@ export default function BookingPage() {
                     </CardContent>
                   </Card>
                 )}
-                {/* add Back/Next buttons */}
                 <div className="flex justify-between pt-2 sm:pt-3">
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => setUiStep(1)}
-                    className="border-none text-[#3C2317] cursor-pointer hover:bg-[#3C2317] hover:text-[#FBF9D9] "
+                    onClick={() => handleStepChange(1)}
+                    className="border-none text-[#3C2317] cursor-pointer hover:bg-[#3C2317] hover:text-[#FBF9D9]"
                   >
                     Back
                   </Button>
                   <Button
                     type="button"
-                    onClick={() => setUiStep(3)}
-                    className="bg-[#3C2317] text-[#FBF9D9] hover:bg-[#5D4037] cursor-pointer "
+                    onClick={() => handleStepChange(3)}
+                    className="bg-[#3C2317] text-[#FBF9D9] hover:bg-[#5D4037] cursor-pointer"
                   >
                     Next
                   </Button>
@@ -1638,7 +1574,7 @@ export default function BookingPage() {
 
             {/* only render Step 3 card when uiStep === 3; also close the missing </form> */}
             {uiStep === 3 && (
-              <form className="space-y-3 sm:space-y-4 lg:space-y-6" onSubmit={handleSubmit}>
+              <form className="space-y-3 sm:space-4 lg:space-y-6" onSubmit={handleSubmit}>
                 <Card className="border-[#D3B88C]/50 shadow-lg hover:shadow-xl transition-all duration-300 bg-[#FBF9D9]/80 backdrop-blur-sm !pt-0">
                   <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 border-b border-[#D3B88C]/50 h-10 sm:h-12 py-2 sm:py-3 px-3 sm:px-6">
                     <CardTitle className="text-[#3C2317] text-sm sm:text-base lg:text-lg">
@@ -1756,8 +1692,8 @@ export default function BookingPage() {
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => setUiStep(2)}
-                    className="border-none text-[#3C2317] cursor-pointer hover:bg-[#3C2317] hover:text-[#FBF9D9] "
+                    onClick={() => handleStepChange(2)}
+                    className="border-none text-[#3C2317] cursor-pointer hover:bg-[#3C2317] hover:text-[#FBF9D9]"
                   >
                     Back
                   </Button>
