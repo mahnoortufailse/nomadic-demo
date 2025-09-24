@@ -901,7 +901,7 @@ export default function BookingPage() {
   </p>
   <Button
     size="lg"
-    className="bg-[#FBF9D9] text-[#3C2317] hover:bg-[#E6CFA9] font-bold text-xl px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer"
+    className="bg-[#FBF9D9] text-[#3C2317] hover:bg-[#E6CFA9] font-bold text-base px-8 py-5 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer"
     onClick={() => {
       setShowBookingFlow(true)
       setTimeout(() => {
