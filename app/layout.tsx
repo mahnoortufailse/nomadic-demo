@@ -6,8 +6,10 @@ import "./globals.css";
 import { Providers } from "@/lib/provider";
 import { Toaster } from "react-hot-toast";
 import localFont from "next/font/local";
-
+import { NextStep, NextStepProvider } from "nextstepjs";
+import { CustomCard } from "@/components/ui/CustomCard";
 import { Roboto } from "next/font/google";
+import { steps } from "@/lib/steps";
 
 const roboto = Roboto({
   weight: ["400", "700"], // choose weights you need
@@ -19,7 +21,7 @@ export const metadata: Metadata = {
   title: "Nomadic Bookings - Desert Camping Experience",
   description:
     "Experience the ultimate desert camping adventure with Nomadic Bookings",
-    generator: 'v0.app'
+  generator: "v0.app",
 };
 
 export default function RootLayout({
@@ -28,9 +30,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={roboto.variable}>
-        <Toaster position="top-right" reverseOrder={false} />
-        <Providers>{children}</Providers>
-        <Analytics />
+        <NextStepProvider>
+          <NextStep steps={steps} cardComponent={CustomCard}>
+            <Providers>{children}</Providers>
+            <Toaster position="top-right" reverseOrder={false} />
+            <Analytics />
+          </NextStep>
+        </NextStepProvider>
       </body>
     </html>
   );
