@@ -891,27 +891,28 @@ export default function BookingPage() {
                   </ul>
                 </section>
 
-                {/* CTA Section */}
-                <section className="bg-gradient-to-r from-[#E6CFA9] to-[#D3B88C] rounded-2xl p-8 text-center shadow-lg border border-[#3C2317]/10">
-                  <h2 className="text-[#3C2317] text-xl lg:text-2xl font-bold mb-3 text-balance">
-                    Ready for hassle-free camping?
-                  </h2>
-                  <p className="text-[#3C2317]/80 text-base mb-6 max-w-xl mx-auto leading-relaxed">
-                    Book your Nomadic setup now and experience the UAE's wild beauty - without lifting a finger.
-                  </p>
-                  <Button
-                    size="lg"
-                    className="bg-[#3C2317] text-[#FBF9D9] hover:bg-[#5D4037] font-bold text-xl px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer"
-                    onClick={() => {
-                      setShowBookingFlow(true)
-                      setTimeout(() => {
-                        stepperSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
-                      }, 100)
-                    }}
-                  >
-                    Book Your Setup Now
-                  </Button>
-                </section>
+             {/* CTA Section */}
+<section className="bg-[#3C2317] rounded-2xl p-8 text-center shadow-lg border border-[#3C2317]/10">
+  <h2 className="text-[#FBF9D9] text-xl lg:text-2xl font-bold mb-3 text-balance">
+    Ready for hassle-free camping?
+  </h2>
+  <p className="text-[#FBF9D9]/80 text-base mb-6 max-w-xl mx-auto leading-relaxed">
+    Book your Nomadic setup now and experience the UAE's wild beauty - without lifting a finger.
+  </p>
+  <Button
+    size="lg"
+    className="bg-[#FBF9D9] text-[#3C2317] hover:bg-[#E6CFA9] font-bold text-xl px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer"
+    onClick={() => {
+      setShowBookingFlow(true)
+      setTimeout(() => {
+        stepperSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+      }, 100)
+    }}
+  >
+    Book Your Setup Now
+  </Button>
+</section>
+
               </div>
 
               {/* Mobile accordion for full details */}
