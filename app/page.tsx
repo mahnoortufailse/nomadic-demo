@@ -252,8 +252,12 @@ useEffect(() => {
     };
   }, [refreshSettings]);
 
-  const minDate = new Date();
-  minDate.setDate(minDate.getDate() + 2);
+ // Calculate min date for the input
+const today = new Date();
+const minDate = new Date(today);
+minDate.setDate(today.getDate() + 2); // Add 2 days to today
+const minDateString = minDate.toISOString().split('T')[0];
+
 
   useEffect(() => {
     if (!settings) return;
@@ -583,26 +587,29 @@ useEffect(() => {
         }
         break;
       case "bookingDate":
-        if (!value) {
-          newErrors.bookingDate = "Booking date is required";
-        } else {
-          const selectedDate = new Date(value);
-          const today = new Date();
-          today.setHours(0, 0, 0, 0); // Reset time to midnight
-
-          // Calculate days difference
-          const timeDiff = selectedDate.getTime() - today.getTime();
-          const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
-
-          if (daysDiff < 2) {
-            newErrors.bookingDate =
-              "Booking must be at least 2 days in advance";
-            // toast.error("Please select a date at least 2 days from today");
-          } else {
-            delete newErrors.bookingDate;
-          }
-        }
-        break;
+  if (!value) {
+    newErrors.bookingDate = "Booking date is required";
+  } else {
+    // Parse the date string directly (YYYY-MM-DD format from input)
+    const [year, month, day] = value.split('-').map(Number);
+    const selectedDate = new Date(year, month - 1, day);
+    
+    const today = new Date();
+    const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    
+    // Calculate difference in days - CORRECT METHOD
+    const diffTime = selectedDate.getTime() - todayDate.getTime();
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24)); // Use round for accuracy  
+    if (diffDays < 2) {
+      newErrors.bookingDate = `Booking must be at least 2 days in advance (selected: +${diffDays} days)`;
+      if (touched.bookingDate) {
+        // toast.error(`Please select a date at least 2 days from today. Current selection: ${diffDays} day(s) ahead.`);
+      }
+    } else {
+      delete newErrors.bookingDate;
+    }
+  }
+  break;
       case "numberOfTents":
         if (formData.location === "Wadi" && formData.numberOfTents < 2) {
           newErrors.numberOfTents = "Wadi location requires at least 2 tents";
@@ -644,20 +651,23 @@ useEffect(() => {
     }
 
     if (!formData.bookingDate) {
-      newErrors.bookingDate = "Booking date is required";
-    } else {
-      const selectedDate = new Date(formData.bookingDate);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      // Calculate days difference
-      const timeDiff = selectedDate.getTime() - today.getTime();
-      const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
-
-      if (daysDiff < 2) {
-        newErrors.bookingDate = "Booking must be at least 2 days in advance";
-      }
-    }
+  newErrors.bookingDate = "Booking date is required";
+} else {
+  const [year, month, day] = formData.bookingDate.split('-').map(Number);
+  const selectedDate = new Date(year, month - 1, day);
+  
+  const today = new Date();
+  const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  
+  const diffTime = selectedDate.getTime() - todayDate.getTime();
+  const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+  
+  
+  
+  if (diffDays < 2) {
+    newErrors.bookingDate = `Booking must be at least 2 days in advance (selected: +${diffDays} days)`;
+  }
+}
 
     if (formData.location === "Wadi" && formData.numberOfTents < 2) {
       newErrors.numberOfTents = "Wadi location requires at least 2 tents";
@@ -1232,25 +1242,23 @@ useEffect(() => {
                     </div>
 
                     <Input
-                      id="bookingDate"
-                      type="date"
-                      value={formData.bookingDate}
-                      onChange={(e) => {
-                        handleInputChange("bookingDate", e.target.value);
-                        if (e.target.value) {
-                          setSelectedDate(new Date(e.target.value));
-                          validateField("bookingDate", e.target.value);
-                        }
-                      }}
-                      onBlur={(e) => handleBlur("bookingDate", e.target.value)}
-                      min={new Date().toISOString().split("T")[0]} // This disables past dates
-                      className={cn(
-                        "border-2 border-[#D3B88C] focus:border-[#3C2317] focus:ring-2 focus:ring-[#3C2317]/20 transition-all duration-300 h-9 sm:h-10 lg:h-12 rounded-lg sm:rounded-xl cursor-pointer text-xs sm:text-sm",
-                        errors.bookingDate &&
-                          touched.bookingDate &&
-                          "border-red-500 focus:border-red-500"
-                      )}
-                    />
+  id="bookingDate"
+  type="date"
+  value={formData.bookingDate}
+  onChange={(e) => {
+    handleInputChange("bookingDate", e.target.value)
+    if (e.target.value) {
+      setSelectedDate(new Date(e.target.value))
+      validateField("bookingDate", e.target.value)
+    }
+  }}
+  onBlur={(e) => handleBlur("bookingDate", e.target.value)}
+  min={minDateString} // This should prevent selecting invalid dates
+  className={cn(
+    "border-2 border-[#D3B88C] focus:border-[#3C2317] focus:ring-2 focus:ring-[#3C2317]/20 transition-all duration-300 h-9 sm:h-10 lg:h-12 rounded-lg sm:rounded-xl cursor-pointer text-xs sm:text-sm",
+    errors.bookingDate && touched.bookingDate && "border-red-500 focus:border-red-500",
+  )}
+/>
                     {errors.bookingDate && touched.bookingDate && (
                       <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-lg">
                         <p className="text-xs sm:text-sm text-red-700 flex items-center space-x-2">
