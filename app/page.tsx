@@ -815,7 +815,7 @@ console.log('Min date calculation:', {
 
       // Dismiss loading toast and show success
       toast.dismiss(loadingToast);
-      toast.success("Booking created! Redirecting to payment...");
+      toast.success("Redirecting to payment...");
 
       // Add a small delay to show the success message
       setTimeout(() => {
