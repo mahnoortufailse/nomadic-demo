@@ -3,7 +3,6 @@
 
 import type React from "react";
 
-
 import { useState, useEffect, useCallback, useRef } from "react";
 import toast from "react-hot-toast";
 
@@ -44,7 +43,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import Stepper from "@/components/ui/stepper";
-import { useNextStep } from "nextstepjs";
+
 
 const DEFAULT_SETTINGS = {
   tentPrice: 1297.8, // Base price for weekdays and multiple tents
@@ -59,7 +58,7 @@ const DEFAULT_SETTINGS = {
 };
 
 export default function BookingPage() {
-  const { startNextStep } = useNextStep();
+
   const [adults, setAdults] = useState(2);
   const [children, setChildren] = useState(0);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -134,36 +133,87 @@ export default function BookingPage() {
   };
 
 
-useEffect(() => {
-  try {
-    const hasSeenTour = localStorage.getItem("seenFirstTour");
 
-    if (typeof window !== "undefined" && window.innerWidth >= 768) {
-      // Only start tour on tablet (768px) and above
-     
-        startNextStep("firsttour");
-        localStorage.setItem("seenFirstTour", "true");
-      
-    }
-  } catch (err) {
-    console.error("localStorage not available", err);
-  }
-}, []);
+  const validateCurrentStep = () => {
+  switch (uiStep) {
+    case 1:
+      // Validate Step 1: Date, Location, Number of Tents
+      const step1Errors = [];
+      if (!formData.bookingDate) step1Errors.push("bookingDate");
+      if (!formData.location) step1Errors.push("location");
+      if (formData.location === "Wadi" && formData.numberOfTents < 2)
+        step1Errors.push("numberOfTents");
 
-useEffect(() => {
-  if (showBookingFlow === true) {
-    try {
-      if (typeof window !== "undefined" && window.innerWidth >= 768) {
-        // Only start second tour on tablet and above
-        startNextStep("secondtour");
+      // Add proper date validation for step 1
+      if (formData.bookingDate) {
+        const selectedDate = new Date(formData.bookingDate);
+        const today = new Date();
+        
+        const selectedMidnight = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate());
+        const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        
+        const diffTime = selectedMidnight.getTime() - todayMidnight.getTime();
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        
+        if (diffDays < 2) step1Errors.push("bookingDate");
       }
-    } catch (err) {
-      console.error("Error starting second tour", err);
-    }
+
+      return step1Errors.length === 0;
+
+    case 2:
+      // Step 2 has no required fields, always valid
+      return true;
+
+    case 3:
+      // Validate Step 3: Personal Details
+      const step3Errors = [];
+      if (!formData.customerName.trim()) step3Errors.push("customerName");
+      if (
+        !formData.customerEmail.trim() ||
+        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.customerEmail)
+      )
+        step3Errors.push("customerEmail");
+      if (
+        !formData.customerPhone.startsWith("+971") ||
+        formData.customerPhone.length < 12
+      )
+        step3Errors.push("customerPhone");
+
+      return step3Errors.length === 0;
+
+    default:
+      return true;
   }
-}, [showBookingFlow]);
+};
 
   const handleStepChange = (newStep: number) => {
+    // If moving forward, validate current step
+    if (newStep > uiStep && !validateCurrentStep()) {
+      // Trigger validation for all fields in current step
+      if (uiStep === 1) {
+        setTouched((prev) => ({
+          ...prev,
+          bookingDate: true,
+          location: true,
+          numberOfTents: true,
+        }));
+        validateField("bookingDate", formData.bookingDate);
+        validateField("numberOfTents", formData.numberOfTents.toString());
+      } else if (uiStep === 3) {
+        setTouched((prev) => ({
+          ...prev,
+          customerName: true,
+          customerEmail: true,
+          customerPhone: true,
+        }));
+        validateField("customerName", formData.customerName);
+        validateField("customerEmail", formData.customerEmail);
+        validateField("customerPhone", formData.customerPhone);
+      }
+      toast.error("Please complete all required fields before proceeding");
+      return;
+    }
+
     setUiStep(newStep);
     setTimeout(() => {
       scrollToStepperTop();
@@ -252,11 +302,16 @@ useEffect(() => {
     };
   }, [refreshSettings]);
 
- // Calculate min date for the input
 const today = new Date();
-const minDate = new Date(today);
-minDate.setDate(today.getDate() + 2); // Add 2 days to today
+const minDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 2);
 const minDateString = minDate.toISOString().split('T')[0];
+
+console.log('Min date calculation:', {
+  today: today.toDateString(),
+  minDate: minDate.toDateString(),
+  minDateString: minDateString
+});
+
 
 
   useEffect(() => {
@@ -590,20 +645,29 @@ const minDateString = minDate.toISOString().split('T')[0];
   if (!value) {
     newErrors.bookingDate = "Booking date is required";
   } else {
-    // Parse the date string directly (YYYY-MM-DD format from input)
-    const [year, month, day] = value.split('-').map(Number);
-    const selectedDate = new Date(year, month - 1, day);
-    
+    // Simple date comparison without timezone issues
+    const selectedDate = new Date(value);
     const today = new Date();
-    const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     
-    // Calculate difference in days - CORRECT METHOD
-    const diffTime = selectedDate.getTime() - todayDate.getTime();
-    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24)); // Use round for accuracy  
+    // Reset both dates to midnight for accurate comparison
+    const selectedMidnight = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate());
+    const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    
+    // Calculate difference in milliseconds and convert to days
+    const diffMs = selectedMidnight.getTime() - todayMidnight.getTime();
+    const diffDays = diffMs / (1000 * 60 * 60 * 24);
+    
+    console.log('Date validation:', {
+      today: todayMidnight.toDateString(),
+      selected: selectedMidnight.toDateString(),
+      diffDays: diffDays,
+      value: value
+    });
+    
     if (diffDays < 2) {
-      newErrors.bookingDate = `Booking must be at least 2 days in advance (selected: +${diffDays} days)`;
+      newErrors.bookingDate = `Booking must be at least 2 days in advance (selected date is ${diffDays} day(s) from today)`;
       if (touched.bookingDate) {
-        // toast.error(`Please select a date at least 2 days from today. Current selection: ${diffDays} day(s) ahead.`);
+        // toast.error(`Please select a date at least 2 days from today.`);
       }
     } else {
       delete newErrors.bookingDate;
@@ -613,7 +677,7 @@ const minDateString = minDate.toISOString().split('T')[0];
       case "numberOfTents":
         if (formData.location === "Wadi" && formData.numberOfTents < 2) {
           newErrors.numberOfTents = "Wadi location requires at least 2 tents";
-          toast.error("Wadi location requires minimum 2 tents");
+          // toast.error("Wadi location requires minimum 2 tents");
         } else {
           delete newErrors.numberOfTents;
         }
@@ -650,22 +714,26 @@ const minDateString = minDate.toISOString().split('T')[0];
       newErrors.customerPhone = "Phone number must start with +971";
     }
 
-    if (!formData.bookingDate) {
+   if (!formData.bookingDate) {
   newErrors.bookingDate = "Booking date is required";
 } else {
-  const [year, month, day] = formData.bookingDate.split('-').map(Number);
-  const selectedDate = new Date(year, month - 1, day);
-  
+  const selectedDate = new Date(formData.bookingDate);
   const today = new Date();
-  const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
   
-  const diffTime = selectedDate.getTime() - todayDate.getTime();
-  const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+  const selectedMidnight = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate());
+  const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
   
+  const diffTime = selectedMidnight.getTime() - todayMidnight.getTime();
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
   
+  console.log('=== SUBMIT VALIDATION DEBUG ===');
+  console.log('Today:', todayMidnight.toDateString());
+  console.log('Selected:', selectedMidnight.toDateString());
+  console.log('Diff in days:', diffDays);
+  console.log('============================');
   
   if (diffDays < 2) {
-    newErrors.bookingDate = `Booking must be at least 2 days in advance (selected: +${diffDays} days)`;
+    newErrors.bookingDate = `Booking must be at least 2 days in advance`;
   }
 }
 
@@ -827,11 +895,6 @@ const minDateString = minDate.toISOString().split('T')[0];
     }
   };
 
-
-
-
-
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#FBF9D9] via-[#E6CFA9] to-[#D3B88C]">
       <nav className="bg-[#3C2317]/90 backdrop-blur-md border-b border-[#3C2317]/50 shadow-lg sticky top-0 z-50 transition-all duration-300">
@@ -863,6 +926,8 @@ const minDateString = minDate.toISOString().split('T')[0];
                   src={
                     campingImages[currentImageIndex].src ||
                     "/placeholder.svg?height=420&width=1000&query=luxury desert camping" ||
+                    "/placeholder.svg" ||
+                    "/placeholder.svg" ||
                     "/placeholder.svg"
                   }
                   alt={campingImages[currentImageIndex].alt}
@@ -883,7 +948,8 @@ const minDateString = minDate.toISOString().split('T')[0];
                   <Image
                     src={
                       image.src ||
-                      "/placeholder.svg?height=130&width=200&query=camping scene"
+                      "/placeholder.svg?height=130&width=200&query=camping scene" ||
+                      "/placeholder.svg"
                     }
                     alt={image.alt}
                     fill
@@ -898,14 +964,11 @@ const minDateString = minDate.toISOString().split('T')[0];
             </div>
           </div>
 
-          <div
-            className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10"
-           
-          >
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
             {/* LEFT: Main description and CTA */}
             <div className="lg:col-span-2 space-y-6">
               <div className="text-left">
-                <h1 className="text-2xl md:text-3xl font-bold text-[#3C2317] mb-3 text-balance">
+                <h1 className="text-2xl md:text-3xl font-bold text-[#3C2317] mb-3 ">
                   Nomadic Camping Rental Setups
                 </h1>
                 <div className="flex items-center gap-3 mb-4">
@@ -916,7 +979,10 @@ const minDateString = minDate.toISOString().split('T')[0];
                     </span>
                   </div>
                 </div>
-                <p className="text-sm text-[#3C2317]/80 max-w-3xl text-pretty leading-relaxed mb-4"  id="tour1-step1">
+                <p
+                  className="text-sm text-[#3C2317]/80 max-w-3xl text-pretty leading-relaxed mb-4"
+                  id="tour1-step1"
+                >
                   Nomadic was created to make camping magical, stress-free, and
                   unforgettable. Forget about buying expensive gear, figuring
                   out how to pitch a tent, or packing endless supplies. With
@@ -931,8 +997,39 @@ const minDateString = minDate.toISOString().split('T')[0];
                   need for a comfortable and unforgettable stay under the stars.
                 </p>
               </div>
+             <section className="bg-gradient-to-r from-[#E6CFA9] to-[#D3B88C] rounded-2xl p-4 sm:p-6 lg:p-8 shadow-lg border border-[#3C2317]/10">
+  <div className="flex flex-col lg:flex-row items-center lg:items-end justify-between gap-4 sm:gap-6 text-center lg:text-left">
+    {/* Text Content */}
+    <div className="max-w-lg">
+      <h2 className="text-[#3C2317] text-lg sm:text-xl lg:text-2xl font-bold mb-2 sm:mb-3 text-balance">
+        Ready for hassle-free camping?
+      </h2>
+      <p className="text-[#3C2317]/80 text-sm sm:text-base leading-relaxed">
+        Book your Nomadic setup now and experience the UAE's wild beauty —
+        without lifting a finger.
+      </p>
+    </div>
 
-              <div className="space-y-6">
+    {/* Button */}
+    <Button
+      size="lg"
+      className="w-full sm:w-auto bg-[#3C2317] text-[#FBF9D9] hover:bg-[#3C2317] font-bold text-sm sm:text-base px-6 sm:px-10 py-3 sm:py-4 rounded-xl shadow-lg  transition-all duration-300 transform hover:scale-105 cursor-pointer"
+      onClick={() => {
+        setShowBookingFlow(true);
+        setTimeout(() => {
+          stepperSectionRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        }, 100);
+      }}
+    >
+      Book Your Setup Now
+    </Button>
+  </div>
+</section>
+
+              <div className="space-y-8">
                 {/* Itinerary */}
                 <section className="pl-3 border-l-3 border-[#D3B88C]">
                   <div className="flex items-center gap-2 mb-3">
@@ -1051,33 +1148,6 @@ const minDateString = minDate.toISOString().split('T')[0];
                     ))}
                   </ul>
                 </section>
-
-                {/* CTA Section */}
-                <section className="bg-[#3C2317] rounded-2xl p-8 text-center shadow-lg border border-[#3C2317]/10">
-                  <h2 className="text-[#FBF9D9] text-xl lg:text-2xl font-bold mb-3 text-balance">
-                    Ready for hassle-free camping?
-                  </h2>
-                  <p className="text-[#FBF9D9]/80 text-base mb-6 max-w-xl mx-auto leading-relaxed">
-                    Book your Nomadic setup now and experience the UAE's wild
-                    beauty - without lifting a finger.
-                  </p>
-                  <Button
-                    size="lg"
-                    id="tour1-step2"
-                    className="bg-[#FBF9D9] text-[#3C2317] hover:bg-[#E6CFA9] font-bold text-base px-8 py-5 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer"
-                    onClick={() => {
-                      setShowBookingFlow(true);
-                      setTimeout(() => {
-                        stepperSectionRef.current?.scrollIntoView({
-                          behavior: "smooth",
-                          block: "start",
-                        });
-                      }, 100);
-                    }}
-                  >
-                    Book Your Setup Now
-                  </Button>
-                </section>
               </div>
 
               {/* Mobile accordion for full details */}
@@ -1098,11 +1168,11 @@ const minDateString = minDate.toISOString().split('T')[0];
                 </Accordion>
               </div>
             </div>
-            {/* RIGHT: Highlights + Included/Not Included */}
-            <aside className="space-y-2 sm:space-y-3 lg:space-y-4 lg:sticky lg:top-24 h-max">
+            {/* RIGHT: Book Your Setup Now + Highlights + Included/Not Included */}
+            <aside className="space-y-6 sm:space-y-4 lg:space-y-4 lg:sticky lg:top-24 h-max">
               <Card className="border border-[#D3B88C]/40 shadow-md bg-gradient-to-br from-[#FBF9D9] to-[#E6CFA9] rounded-lg lg:rounded-xl overflow-hidden !pt-0">
                 <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 px-2 sm:px-3 lg:px-4 h-8 sm:h-10 py-1.5 sm:py-2 border-b border-[#D3B88C]/30">
-                  <CardTitle className="text-[#3C2317] flex items-center text-xs sm:text-sm lg:text-base font-bold tracking-wide">
+                  <CardTitle className="text-[#3C2317] flex items-center text-sm sm:text-sm lg:text-base font-bold tracking-wide">
                     <Check className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 text-[#3C2317]" />
                     Highlights
                   </CardTitle>
@@ -1133,7 +1203,7 @@ const minDateString = minDate.toISOString().split('T')[0];
                 {/* What's Included */}
                 <Card className="border border-[#D3B88C]/40 shadow-md bg-gradient-to-br from-[#FBF9D9] to-[#E6CFA9] rounded-lg lg:rounded-xl overflow-hidden !pt-0">
                   <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 px-2 sm:px-3 lg:px-4 h-8 sm:h-10 py-1.5 sm:py-2 border-b border-[#D3B88C]/30">
-                    <CardTitle className="text-[#3C2317] flex items-center text-xs sm:text-sm lg:text-base font-bold tracking-wide">
+                    <CardTitle className="text-[#3C2317] flex items-center text-sm sm:text-sm lg:text-base font-bold tracking-wide">
                       <Check className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 text-[#3C2317]" />
                       What's Included
                     </CardTitle>
@@ -1165,7 +1235,7 @@ const minDateString = minDate.toISOString().split('T')[0];
                 {/* Not Included */}
                 <Card className="border border-[#D3B88C]/40 shadow-md bg-gradient-to-br from-[#FBF9D9] to-[#E6CFA9] rounded-lg lg:rounded-xl overflow-hidden !pt-0">
                   <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 px-2 sm:px-3 lg:px-4 h-8 sm:h-10 py-1.5 sm:py-2 border-b border-[#D3B88C]/30">
-                    <CardTitle className="text-[#3C2317] flex items-center text-xs sm:text-sm lg:text-base font-bold tracking-wide">
+                    <CardTitle className="text-[#3C2317] flex items-center text-sm sm:text-sm lg:text-base font-bold tracking-wide">
                       <X className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 text-[#3C2317]" />
                       Not Included
                     </CardTitle>
@@ -1224,7 +1294,10 @@ const minDateString = minDate.toISOString().split('T')[0];
             {/* show only Step 1 card when uiStep === 1 and add Next button */}
             {uiStep === 1 && (
               <>
-                <Card className="border-[#D3B88C]/50 shadow-lg hover:shadow-xl transition-all duration-300 bg-[#FBF9D9]/80 backdrop-blur-sm !pt-0" id="tour2-step1">
+                <Card
+                  className="border-[#D3B88C]/50 shadow-lg hover:shadow-xl transition-all duration-300 bg-[#FBF9D9]/80 backdrop-blur-sm !pt-0"
+                  id="tour2-step1"
+                >
                   <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 border-b border-[#D3B88C]/50 h-10 sm:h-12 py-2 sm:py-3 px-3 sm:px-6">
                     <CardTitle className="text-[#3C2317] flex items-center space-x-2 text-sm sm:text-base lg:text-lg">
                       <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-[#3C2317]" />
@@ -1242,23 +1315,25 @@ const minDateString = minDate.toISOString().split('T')[0];
                     </div>
 
                     <Input
-  id="bookingDate"
-  type="date"
-  value={formData.bookingDate}
-  onChange={(e) => {
-    handleInputChange("bookingDate", e.target.value)
-    if (e.target.value) {
-      setSelectedDate(new Date(e.target.value))
-      validateField("bookingDate", e.target.value)
-    }
-  }}
-  onBlur={(e) => handleBlur("bookingDate", e.target.value)}
-  min={minDateString} // This should prevent selecting invalid dates
-  className={cn(
-    "border-2 border-[#D3B88C] focus:border-[#3C2317] focus:ring-2 focus:ring-[#3C2317]/20 transition-all duration-300 h-9 sm:h-10 lg:h-12 rounded-lg sm:rounded-xl cursor-pointer text-xs sm:text-sm",
-    errors.bookingDate && touched.bookingDate && "border-red-500 focus:border-red-500",
-  )}
-/>
+                      id="bookingDate"
+                      type="date"
+                      value={formData.bookingDate}
+                      onChange={(e) => {
+                        handleInputChange("bookingDate", e.target.value);
+                        if (e.target.value) {
+                          setSelectedDate(new Date(e.target.value));
+                          validateField("bookingDate", e.target.value);
+                        }
+                      }}
+                      onBlur={(e) => handleBlur("bookingDate", e.target.value)}
+                      min={minDateString} // This should prevent selecting invalid dates
+                      className={cn(
+                        "border-2 border-[#D3B88C] focus:border-[#3C2317] focus:ring-2 focus:ring-[#3C2317]/20 transition-all duration-300 h-9 sm:h-10 lg:h-12 rounded-lg sm:rounded-xl cursor-pointer text-xs sm:text-sm",
+                        errors.bookingDate &&
+                          touched.bookingDate &&
+                          "border-red-500 focus:border-red-500"
+                      )}
+                    />
                     {errors.bookingDate && touched.bookingDate && (
                       <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-lg">
                         <p className="text-xs sm:text-sm text-red-700 flex items-center space-x-2">
@@ -1282,21 +1357,11 @@ const minDateString = minDate.toISOString().split('T')[0];
                         <div className="mt-2">
                           {dateConstraints.remainingCapacity > 0 ? (
                             <div className="flex items-center space-x-2 text-xs sm:text-sm">
-                              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                              <span className="text-green-700">
-                                {dateConstraints.remainingCapacity} tent
-                                {dateConstraints.remainingCapacity === 1
-                                  ? ""
-                                  : "s"}{" "}
-                                available (10 max per day)
-                              </span>
+                              <span className="text-green-700">Available</span>
                             </div>
                           ) : (
                             <div className="flex items-center space-x-2 text-xs sm:text-sm">
-                              <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                              <span className="text-red-700">
-                                Fully booked (10 tents maximum per day)
-                              </span>
+                              <span className="text-red-700">Fully booked</span>
                             </div>
                           )}
                         </div>
@@ -1304,7 +1369,10 @@ const minDateString = minDate.toISOString().split('T')[0];
                   </CardContent>
                 </Card>
 
-                <Card className="border-[#D3B88C]/50 shadow-lg hover:shadow-xl transition-all duration-300 bg-[#FBF9D9]/80 backdrop-blur-sm !pt-0" id="tour2-step2">
+                <Card
+                  className="border-[#D3B88C]/50 shadow-lg hover:shadow-xl transition-all duration-300 bg-[#FBF9D9]/80 backdrop-blur-sm !pt-0"
+                  id="tour2-step2"
+                >
                   <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 border-b border-[#D3B88C]/50 h-10 sm:h-12 py-2 sm:py-3 px-3 sm:px-6">
                     <CardTitle className="text-[#3C2317] text-sm sm:text-base lg:text-lg">
                       Location & Setup
@@ -1481,7 +1549,10 @@ const minDateString = minDate.toISOString().split('T')[0];
                   </CardContent>
                 </Card>
 
-                <Card className="border-[#D3B88C]/50 shadow-lg hover:shadow-xl transition-all duration-300 bg-[#FBF9D9]/80 backdrop-blur-sm !pt-0" id="tour2-step3">
+                <Card
+                  className="border-[#D3B88C]/50 shadow-lg hover:shadow-xl transition-all duration-300 bg-[#FBF9D9]/80 backdrop-blur-sm !pt-0"
+                  id="tour2-step3"
+                >
                   <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 border-b border-[#D3B88C]/50 h-10 sm:h-12 py-2 sm:py-3 px-3 sm:px-6">
                     <CardTitle className="text-[#3C2317] flex items-center space-x-2 text-sm sm:text-base lg:text-lg">
                       <Users className="w-4 h-4 sm:w-5 sm:h-5 text-[#3C2317]" />
@@ -1574,7 +1645,7 @@ const minDateString = minDate.toISOString().split('T')[0];
                             (under 12)
                           </span>
                         </Label>
-                        <div className="flex items-center justify-center space-x-2">
+                        <div className="flex items-start justify-center space-x-2">
                           <Button
                             type="button"
                             variant="outline"
@@ -1680,7 +1751,17 @@ const minDateString = minDate.toISOString().split('T')[0];
                   </CardContent>
                 </Card>
 
-                <div className="flex justify-end pt-2 sm:pt-3">
+                <div className="flex justify-between sm:justify-end sm:gap-5 pt-2 sm:pt-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled
+                    onClick={() => handleStepChange(1)}
+                    className="border-none text-[#3C2317]/40 bg-gray-200 cursor-not-allowed"
+                  >
+                    Back
+                  </Button>
+
                   <Button
                     type="button"
                     onClick={() => handleStepChange(2)}
@@ -1857,7 +1938,7 @@ const minDateString = minDate.toISOString().split('T')[0];
                     </CardContent>
                   </Card>
                 )}
-                <div className="flex justify-between pt-2 sm:pt-3">
+                <div className="flex justify-between sm:justify-end sm:gap-5 pt-2 sm:pt-3">
                   <Button
                     type="button"
                     variant="outline"
@@ -2021,7 +2102,7 @@ const minDateString = minDate.toISOString().split('T')[0];
                   </CardContent>
                 </Card>
 
-                <div className="flex justify-between pt-2 sm:pt-3">
+                <div className="flex justify-between sm:justify-end sm:gap-5 pt-2 sm:pt-3">
                   <Button
                     type="button"
                     variant="outline"
@@ -2054,8 +2135,11 @@ const minDateString = minDate.toISOString().split('T')[0];
           </div>
 
           <div className="xl:col-span-1">
-            <Card className="sticky top-12 sm:top-16 lg:top-20 border-[#D3B88C]/50 shadow-2xl bg-gradient-to-br from-[#FBF9D9]/95 to-[#E6CFA9]/95 backdrop-blur-md overflow-hidden !pt-0 transform hover:scale-[1.01] lg:hover:scale-[1.02] transition-all duration-300" id="tour2-step4">
-              <CardHeader className="bg-gradient-to-r from-[#3C2317] to-[#5D4037] text-[#FBF9D9] p-3 sm:p-4 lg:p-6 relative overflow-hidden">
+            <Card
+              className="sticky top-12 sm:top-16 lg:top-20 border-[#D3B88C]/50 shadow-2xl bg-gradient-to-br from-[#FBF9D9]/95 to-[#E6CFA9]/95 backdrop-blur-md overflow-hidden !pt-0 transform hover:scale-[1.01] lg:hover:scale-[1.02] transition-all duration-300"
+              id="tour2-step4"
+            >
+              <CardHeader className="bg-gradient-to-r from-[#3C2317] to-[#5D4037] text-[#FBF9D9] p-4 sm:p-4 lg:p-6 relative overflow-hidden">
                 <div className="relative z-10">
                   <CardTitle className="text-base sm:text-lg lg:text-xl font-bold flex items-center space-x-2">
                     <span>Booking Summary</span>
@@ -2076,7 +2160,7 @@ const minDateString = minDate.toISOString().split('T')[0];
                       </div>
                       <div>
                         <span className="text-[#3C2317] font-semibold text-xs sm:text-sm">
-                          {formData.numberOfTents} Tent
+                          Tent
                           {formData.numberOfTents > 1 ? "s" : ""}
                         </span>
                         <p className="text-[#3C2317]/70 text-xs">
@@ -2177,7 +2261,7 @@ const minDateString = minDate.toISOString().split('T')[0];
                     </div>
                   </div>
 
-                  <div className="border-t-2 border-[#3C2317]/20 pt-2 sm:pt-3">
+                  <div className="border-t-2 border-[#3C2317]/20 pt-4 sm:pt-4">
                     <div className="flex justify-between text-base sm:text-lg font-bold p-2 sm:p-3 bg-gradient-to-r from-[#3C2317]/10 to-[#5D4037]/10 rounded-lg sm:rounded-xl">
                       <span className="text-[#3C2317]">Total</span>
                       <span className="text-[#3C2317]">
@@ -2208,64 +2292,74 @@ const minDateString = minDate.toISOString().split('T')[0];
                 </div>
 
                 <div className="text-center">
-                  <p className="text-xs text-[#3C2317]/80 mb-2 sm:mb-3">
+                  <p className="text-xs text-[#3C2317]/80 mb-3 sm:mb-3">
                     🔒 Secure payment powered by Stripe. You will be redirected
                     to complete your payment safely.
                   </p>
                 </div>
+<div className="bg-gradient-to-r from-[#E6CFA9]/50 to-[#D3B88C]/20 p-3 sm:p-4 lg:p-5 rounded-xl lg:rounded-2xl border border-[#3C2317]/10 shadow-md hover:shadow-lg transition-all duration-300">
+  <h4 className="font-bold text-[#3C2317] mb-3 sm:mb-4 text-sm sm:text-base lg:text-lg border-b border-[#3C2317]/20 pb-2">
+    Pricing Guide
+  </h4>
 
-                <div className="bg-gradient-to-r from-[#E6CFA9]/50 to-[#D3B88C]/20 p-3 sm:p-4 lg:p-5 rounded-xl lg:rounded-2xl border border-[#3C2317]/10 shadow-md hover:shadow-lg transition-all duration-300">
-                  <h4 className="font-bold text-[#3C2317] mb-3 sm:mb-4 text-sm sm:text-base lg:text-lg border-b border-[#3C2317]/20 pb-2">
-                    Pricing Guide
-                  </h4>
-                  <div className="space-y-2 sm:space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs sm:text-sm text-[#3C2317]/80 flex items-center gap-1 sm:gap-2">
-                        <i className="fa-regular fa-calendar-days"></i> Weekdays
-                        (Mon-Thu):
-                      </span>
-                      <span className="font-semibold text-xs sm:text-sm text-[#3C2317]">
-                        AED 1297.80 + VAT
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs sm:text-sm text-[#3C2317]/80 flex items-center gap-1 sm:gap-2">
-                        <i className="fa-solid fa-calendar-week"></i> Weekends
-                        (Fri-Sun):
-                      </span>
-                      <span className="font-semibold text-xs sm:text-sm text-[#3C2317]">
-                        AED 1497.80 + VAT
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs sm:text-sm text-[#3C2317]/80 flex items-center gap-1 sm:gap-2">
-                        <i className="fa-solid fa-campground"></i> 2+ tents (any
-                        day):
-                      </span>
-                      <span className="font-semibold text-xs sm:text-sm text-[#3C2317]">
-                        AED 1297.80 each + VAT
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs sm:text-sm text-[#3C2317]/80 flex items-center gap-1 sm:gap-2">
-                        <i className="fa-solid fa-mountain"></i> Wadi surcharge:
-                      </span>
-                      <span className="font-semibold text-xs sm:text-sm text-[#3C2317]">
-                        AED {settings?.wadiSurcharge || 250}
-                      </span>
-                    </div>
+  <div className="space-y-3 sm:space-y-3">
+    {/* Weekdays */}
+    <div className="flex justify-between items-center">
+      <span className="text-[11px] sm:text-xs text-[#3C2317]/80 flex items-center gap-2">
+        <i className="fa-regular fa-calendar-days"></i> Weekdays (Mon–Thu)
+      </span>
+      <span className="font-semibold text-[11px] sm:text-xs text-[#3C2317]">
+        AED 1297.80 + VAT
+      </span>
+    </div>
 
-                    <div className="flex justify-between items-center border-t border-[#3C2317]/20 pt-2 sm:pt-3 mt-2">
-                      <span className="text-xs sm:text-sm text-[#3C2317] flex items-center gap-1 sm:gap-2">
-                        <i className="fa-solid fa-gift text-[#3C2317]"></i>{" "}
-                        Children bonus:
-                      </span>
-                      <span className="font-semibold text-xs sm:text-sm text-[#3C2317]">
-                        FREE portable toilet
-                      </span>
-                    </div>
-                  </div>
-                </div>
+    {/* Weekends */}
+    <div className="flex justify-between items-center">
+      <span className="text-[11px] sm:text-xs text-[#3C2317]/80 flex items-center gap-2">
+        <i className="fa-solid fa-calendar-week"></i> Weekends (Fri–Sun)
+      </span>
+      <span className="font-semibold text-[11px] sm:text-xs text-[#3C2317]">
+        AED 1497.80 + VAT
+      </span>
+    </div>
+
+    {/* 2+ tents */}
+    <div className="flex justify-between items-center">
+      <span className="text-[11px] sm:text-xs text-[#3C2317]/80 flex items-center gap-2">
+        <i className="fa-solid fa-campground"></i> 2+ tents (any day)
+      </span>
+      <span className="font-semibold text-[11px] sm:text-xs text-[#3C2317]">
+        AED 1297.80 each + VAT
+      </span>
+    </div>
+
+    {/* Wadi surcharge */}
+    <div className="flex justify-between items-center">
+      <span className="text-[11px] sm:text-xs text-[#3C2317]/80 flex items-center gap-2">
+        <i className="fa-solid fa-mountain"></i> Wadi surcharge
+      </span>
+      <span className="font-semibold text-[11px] sm:text-xs text-[#3C2317]">
+        AED {settings?.wadiSurcharge || 250}
+      </span>
+    </div>
+
+    {/* Children bonus */}
+    <div className="border-t border-[#3C2317]/20 pt-2 sm:pt-3 mt-2 space-y-1">
+      <div className="flex justify-between items-center">
+        <span className="text-[11px] sm:text-xs text-[#3C2317]/90 flex items-center gap-2">
+          <i className="fa-solid fa-gift text-[#3C2317]"></i> Children bonus
+        </span>
+        <span className="font-semibold text-[11px] sm:text-xs text-[#3C2317]">
+          FREE portable toilet
+        </span>
+      </div>
+      <p className="text-[10px] sm:text-xs text-[#3C2317]/70 italic mt-2">
+        🎁 Free Portable Camping Toilet for Family Booking
+      </p>
+    </div>
+  </div>
+</div>
+
               </CardContent>
             </Card>
           </div>

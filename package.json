@@ -68,6 +68,7 @@
     "react-hot-toast": "latest",
     "react-resizable-panels": "latest",
     "recharts": "latest",
+    "sharp": "^0.34.4",
     "snappy": "latest",
     "socks": "latest",
     "sonner": "latest",

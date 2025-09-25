@@ -38,13 +38,28 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate booking date (minimum today + 2)
-    const bookingDate = new Date(data.bookingDate)
-    const minDate = new Date()
-    minDate.setDate(minDate.getDate() + 2)
+   // Validate booking date (minimum today + 2)
+const bookingDate = new Date(data.bookingDate)
+const today = new Date()
 
-    if (bookingDate < minDate) {
-      return NextResponse.json({ error: "Booking date must be at least 2 days from today" }, { status: 400 })
-    }
+// Reset both dates to midnight for accurate day comparison
+const bookingMidnight = new Date(bookingDate.getFullYear(), bookingDate.getMonth(), bookingDate.getDate())
+const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate())
+
+// Calculate difference in days
+const diffTime = bookingMidnight.getTime() - todayMidnight.getTime()
+const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
+
+console.log('SERVER - Date validation:', {
+  today: todayMidnight.toDateString(),
+  selected: bookingMidnight.toDateString(),
+  diffDays: diffDays,
+  bookingDate: data.bookingDate
+})
+
+if (diffDays < 2) {
+  return NextResponse.json({ error: "Booking date must be at least 2 days from today" }, { status: 400 })
+}
 
     const db = await getDatabase()
 
