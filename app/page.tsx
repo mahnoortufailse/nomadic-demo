@@ -2429,6 +2429,26 @@ export default function BookingPage() {
           </div>
         </div>
       </div>
+
+      {/* WhatsApp Floating Button */}
+<div className="fixed bottom-3 right-3 z-50">
+  <a
+    href="https://wa.link/wf9dkt"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="bg-[#25D366] hover:bg-[#128C7E] text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 cursor-pointer flex items-center justify-center"
+    aria-label="Contact us on WhatsApp"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 32 32"
+      fill="currentColor"
+      className="w-6 h-6"
+    >
+      <path d="M16 0C7.2 0 0 7.2 0 16c0 2.8.7 5.5 2.1 7.9L0 32l8.3-2.2c2.3 1.3 4.9 2 7.7 2 8.8 0 16-7.2 16-16S24.8 0 16 0zm0 29c-2.5 0-4.9-.7-7-2l-.5-.3-4.9 1.3 1.3-4.8-.3-.5C3.4 21.6 3 18.8 3 16 3 8.8 8.8 3 16 3s13 5.8 13 13-5.8 13-13 13zm7.4-9.4c-.4-.2-2.3-1.1-2.6-1.2-.4-.2-.6-.2-.9.2-.3.4-1 1.2-1.2 1.4-.2.2-.4.3-.8.1-.4-.2-1.6-.6-3-1.9-1.1-1-1.9-2.2-2.1-2.6-.2-.4 0-.6.2-.8.2-.2.4-.4.6-.6.2-.2.3-.4.5-.6.2-.2.2-.4.1-.7s-.9-2.1-1.3-2.9c-.3-.7-.6-.6-.9-.6h-.8c-.3 0-.7.1-1.1.5-.4.4-1.5 1.4-1.5 3.4s1.6 3.9 1.8 4.2c.2.3 3.1 4.7 7.7 6.6 1.1.5 2 .8 2.7 1 .6.2 1.1.2 1.6.1.5-.1 1.6-.6 1.8-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.7-.4z" />
+    </svg>
+  </a>
+</div>
     </div>
   );
 }
