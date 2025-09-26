@@ -8,7 +8,7 @@ async function initializeDatabase() {
 
   try {
     await client.connect()
-    console.log("[v0] Connected to MongoDB")
+   
 
     const db = client.db(DB_NAME)
 
@@ -19,7 +19,7 @@ async function initializeDatabase() {
       const exists = await db.listCollections({ name: collectionName }).hasNext()
       if (!exists) {
         await db.createCollection(collectionName)
-        console.log(`[v0] Created collection: ${collectionName}`)
+        
       }
     }
 
@@ -29,7 +29,7 @@ async function initializeDatabase() {
     await db.collection("users").createIndex({ email: 1 }, { unique: true })
     await db.collection("dateLocationLocks").createIndex({ date: 1, lockedLocation: 1 }, { unique: true })
 
-    console.log("[v0] Database indexes created")
+    
 
     // Initialize default settings if not exists
     const existingSettings = await db.collection("settings").findOne({})
@@ -49,10 +49,10 @@ async function initializeDatabase() {
         discounts: [],
         updatedAt: new Date(),
       })
-      console.log("[v0] Default settings created")
+      
     }
 
-    console.log("[v0] Database initialization completed successfully")
+    
   } catch (error) {
     console.error("[v0] Database initialization failed:", error)
     throw error

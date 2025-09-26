@@ -8,7 +8,7 @@ async function seedSampleData() {
 
   try {
     await client.connect()
-    console.log("[v0] Connected to MongoDB")
+    
 
     const db = client.db(DB_NAME)
 
@@ -62,12 +62,12 @@ async function seedSampleData() {
     const existingBookings = await db.collection("bookings").countDocuments()
     if (existingBookings === 0) {
       await db.collection("bookings").insertMany(sampleBookings)
-      console.log("[v0] Sample bookings created")
+      
     } else {
       console.log("[v0] Bookings already exist, skipping sample data")
     }
 
-    console.log("[v0] Sample data seeding completed")
+    
   } catch (error) {
     console.error("[v0] Failed to seed sample data:", error)
     throw error

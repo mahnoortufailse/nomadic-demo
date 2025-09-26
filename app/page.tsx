@@ -29,6 +29,9 @@ import {
   Calendar,
   Shield,
   Compass,
+  Loader2Icon,
+  CreditCard,
+  CircleDollarSign,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -929,26 +932,20 @@ export default function BookingPage() {
         >
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
             <div className="lg:col-span-3">
-              <div className="relative h-[300px] md:h-[420px] rounded-xl overflow-hidden shadow-xl group">
-                <Image
-                  src={
-                    campingImages[currentImageIndex].src ||
-                    "/placeholder.svg?height=420&width=1000&query=luxury desert camping" ||
-                    "/placeholder.svg" ||
-                    "/placeholder.svg" ||
-                    "/placeholder.svg" ||
-                    "/placeholder.svg" ||
-                    "/placeholder.svg" ||
-                    "/placeholder.svg" ||
-                    "/placeholder.svg"
-                  }
-                  alt={campingImages[currentImageIndex].alt}
-                  fill
-                  className="object-cover transition-transform duration-700 group-hover:scale-105"
-                  priority={currentImageIndex === 0}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#3C2317]/40 via-transparent to-transparent"></div>
-              </div>
+             <div className="relative w-full h-[300px] md:h-[420px] rounded-xl overflow-hidden shadow-xl group">
+  <Image
+    src={
+      campingImages[currentImageIndex].src ||
+      "/placeholder.svg?height=420&width=1000&query=luxury desert camping"
+    }
+    alt={campingImages[currentImageIndex].alt}
+    fill
+    className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
+    priority={currentImageIndex === 0}
+  />
+  <div className="absolute inset-0 bg-gradient-to-t from-[#3C2317]/40 via-transparent to-transparent"></div>
+</div>
+
             </div>
             <div className="grid grid-cols-4 lg:grid-cols-1 gap-2">
               {campingImages.slice(1, 5).map((image, index) => (
@@ -1327,7 +1324,7 @@ export default function BookingPage() {
                           "_blank"
                         )
                       }
-                      className="bg-[#128C7E] hover:bg-[#128C7E] text-white px-8 py-2 rounded-full flex items-center justify-center gap-2 text-sm font-medium shadow-md hover:shadow-lg transition cursor-pointer"
+                      className="bg-[#128C7E] hover:bg-[#128C7E] text-white px-12 py-3 rounded-full flex items-center justify-center gap-2 text-sm font-medium shadow-md hover:shadow-lg transition cursor-pointer"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -2137,40 +2134,40 @@ export default function BookingPage() {
                 onSubmit={handleSubmit}
               >
                 <Card className="border-[#D3B88C]/50 shadow-lg hover:shadow-xl transition-all duration-300 bg-[#FBF9D9]/80 backdrop-blur-sm !pt-0">
-                  <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 border-b border-[#D3B88C]/50 h-10 sm:h-12 py-2 sm:py-3 px-3 sm:px-6">
-                    <CardTitle className="text-[#3C2317] text-sm sm:text-base lg:text-lg">
-                      Payment
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className=" space-y-3 sm:space-y-4 !pt-0">
-                    <div className="bg-[#D3B88C]/20 p-8 rounded-lg text-center">
-                      <h4 className="font-bold text-[#3C2317] mb-3 text-2xl">
-                        Complete Your Booking
-                      </h4>
-                      <p className="text-sm text-[#3C2317]/80 mb-6">
-                        Secure payment processing to finalize your reservation
-                      </p>
-                      <Button
-                        onClick={handleSubmit}
-                        type="submit"
-                        className="bg-[#3C2317] text-[#FBF9D9] hover:bg-[#5D4037] cursor-pointer px-8 py-3"
-                        disabled={isLoading}
-                      >
-                        {isLoading ? (
-                          <div className="flex items-center space-x-2">
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                            <span>Processing...</span>
-                          </div>
-                        ) : (
-                          <div className="flex items-center space-x-2">
-                            <Shield className="w-4 h-4" />
-                            <span>Complete Booking</span>
-                          </div>
-                        )}
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+  <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 border-b border-[#D3B88C]/50 h-10 sm:h-12 py-2 sm:py-3 px-3 sm:px-6">
+    <CardTitle className="text-[#3C2317] text-sm sm:text-base lg:text-lg">
+      Payment
+    </CardTitle>
+  </CardHeader>
+  <CardContent className="space-y-3 sm:space-y-4 !pt-0">
+    <div className="bg-[#D3B88C]/20 p-8 rounded-lg text-center">
+      <h4 className="font-bold text-[#3C2317] mb-3 text-2xl">
+        Complete Your Booking
+      </h4>
+      <p className="text-sm text-[#3C2317]/80 mb-6 max-w-md mx-auto">
+        Secure and seamless payment processing to finalize your reservation with confidence.
+      </p>
+      <Button
+        onClick={handleSubmit}
+        type="submit"
+        className="bg-[#5D4037] text-[#FBF9D9] hover:bg-[#5D4037] cursor-pointer px-8 py-4 rounded-lg"
+        disabled={isLoading}
+      >
+        {isLoading ? (
+          <div className="flex items-center space-x-2">
+            <Loader2Icon className="w-4 h-4 animate-spin" />
+            <span>Processing...</span>
+          </div>
+        ) : (
+          <div className="flex items-center space-x-2">
+           <Shield className="w-3 h-3 sm:w-4 sm:h-4" />
+            <span>Proceed to Payment</span>
+          </div>
+        )}
+      </Button>
+    </div>
+  </CardContent>
+</Card>
 
                 <div className="flex justify-start pt-2 sm:pt-3">
                   <Button

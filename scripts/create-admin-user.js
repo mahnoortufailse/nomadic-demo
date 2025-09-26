@@ -9,17 +9,16 @@ async function createAdminUser() {
 
   try {
     await client.connect()
-    console.log("[v0] Connected to MongoDB")
+   
 
     const db = client.db(DB_NAME)
     const usersCollection = db.collection("users")
 
-    console.log("[v0] Checking for existing admin user...")
+   
     const existingAdmin = await usersCollection.findOne({ username: "admin" })
 
     if (existingAdmin) {
-      console.log("[v0] Admin user already exists, updating password...")
-      console.log("[v0] Existing admin ID:", existingAdmin._id)
+     
 
       const hashedPassword = await bcrypt.hash("Admin@123", 12)
       const updateResult = await usersCollection.updateOne(
@@ -32,7 +31,7 @@ async function createAdminUser() {
           },
         },
       )
-      console.log("[v0] Update result:", updateResult)
+     
     } else {
       console.log("[v0] Creating new admin user...")
       const hashedPassword = await bcrypt.hash("Admin@123", 12)
@@ -50,11 +49,7 @@ async function createAdminUser() {
     }
 
     const verifyUser = await usersCollection.findOne({ username: "admin" })
-    console.log("[v0] Final verification:")
-    console.log("[v0] - User exists:", !!verifyUser)
-    console.log("[v0] - User ID:", verifyUser?._id)
-    console.log("[v0] - User role:", verifyUser?.role)
-    console.log("[v0] - Password hash length:", verifyUser?.password?.length)
+    
 
     // Test password verification
     if (verifyUser?.password) {
