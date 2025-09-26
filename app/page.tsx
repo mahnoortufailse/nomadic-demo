@@ -1324,7 +1324,7 @@ export default function BookingPage() {
                           "_blank"
                         )
                       }
-                      className="bg-[#128C7E] hover:bg-[#128C7E] text-white px-12 py-3 rounded-full flex items-center justify-center gap-2 text-sm font-medium shadow-md hover:shadow-lg transition cursor-pointer"
+                      className="bg-[#25D366] hover:bg-[#25D366] text-white !px-8 !py-4 rounded-full flex items-center justify-center gap-2 text-sm font-medium shadow-md hover:shadow-lg transition cursor-pointer"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -2431,12 +2431,12 @@ export default function BookingPage() {
       </div>
 
       {/* WhatsApp Floating Button */}
-<div className="fixed bottom-3 right-3 z-50">
+<div className="fixed bottom-4 right-3 z-50">
   <a
     href="https://wa.link/wf9dkt"
     target="_blank"
     rel="noopener noreferrer"
-    className="bg-[#25D366] hover:bg-[#128C7E] text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 cursor-pointer flex items-center justify-center"
+    className="bg-[#25D366] hover:bg-[#25D366] text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 cursor-pointer flex items-center justify-center"
     aria-label="Contact us on WhatsApp"
   >
     <svg
