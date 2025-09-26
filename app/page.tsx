@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -44,9 +43,8 @@ import {
 } from "@/components/ui/accordion";
 import Stepper from "@/components/ui/stepper";
 
-
 const DEFAULT_SETTINGS = {
-  tentPrice: 1297.8, // Base price for weekdays and multiple tents
+  tentPrice: 1297, // Base price for weekdays and multiple tents
   wadiSurcharge: 250,
   vatRate: 0.05,
   addOnPrices: {
@@ -58,7 +56,6 @@ const DEFAULT_SETTINGS = {
 };
 
 export default function BookingPage() {
-
   const [adults, setAdults] = useState(2);
   const [children, setChildren] = useState(0);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -132,59 +129,64 @@ export default function BookingPage() {
     });
   };
 
-
-
   const validateCurrentStep = () => {
-  switch (uiStep) {
-    case 1:
-      // Validate Step 1: Date, Location, Number of Tents
-      const step1Errors = [];
-      if (!formData.bookingDate) step1Errors.push("bookingDate");
-      if (!formData.location) step1Errors.push("location");
-      if (formData.location === "Wadi" && formData.numberOfTents < 2)
-        step1Errors.push("numberOfTents");
+    switch (uiStep) {
+      case 1:
+        // Validate Step 1: Date, Location, Number of Tents
+        const step1Errors = [];
+        if (!formData.bookingDate) step1Errors.push("bookingDate");
+        if (!formData.location) step1Errors.push("location");
+        if (formData.location === "Wadi" && formData.numberOfTents < 2)
+          step1Errors.push("numberOfTents");
 
-      // Add proper date validation for step 1
-      if (formData.bookingDate) {
-        const selectedDate = new Date(formData.bookingDate);
-        const today = new Date();
-        
-        const selectedMidnight = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate());
-        const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-        
-        const diffTime = selectedMidnight.getTime() - todayMidnight.getTime();
-        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-        
-        if (diffDays < 2) step1Errors.push("bookingDate");
-      }
+        // Add proper date validation for step 1
+        if (formData.bookingDate) {
+          const selectedDate = new Date(formData.bookingDate);
+          const today = new Date();
 
-      return step1Errors.length === 0;
+          const selectedMidnight = new Date(
+            selectedDate.getFullYear(),
+            selectedDate.getMonth(),
+            selectedDate.getDate()
+          );
+          const todayMidnight = new Date(
+            today.getFullYear(),
+            today.getMonth(),
+            today.getDate()
+          );
 
-    case 2:
-      // Step 2 has no required fields, always valid
-      return true;
+          const diffTime = selectedMidnight.getTime() - todayMidnight.getTime();
+          const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-    case 3:
-      // Validate Step 3: Personal Details
-      const step3Errors = [];
-      if (!formData.customerName.trim()) step3Errors.push("customerName");
-      if (
-        !formData.customerEmail.trim() ||
-        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.customerEmail)
-      )
-        step3Errors.push("customerEmail");
-      if (
-        !formData.customerPhone.startsWith("+971") ||
-        formData.customerPhone.length < 12
-      )
-        step3Errors.push("customerPhone");
+          if (diffDays < 2) step1Errors.push("bookingDate");
+        }
 
-      return step3Errors.length === 0;
+        return step1Errors.length === 0;
 
-    default:
-      return true;
-  }
-};
+      case 2:
+        // Validate Step 2: Personal Details & Add-Ons
+        const step2Errors = [];
+        if (!formData.customerName.trim()) step2Errors.push("customerName");
+        if (
+          !formData.customerEmail.trim() ||
+          !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.customerEmail)
+        )
+          step2Errors.push("customerEmail");
+        if (
+          !formData.customerPhone.startsWith("+971") ||
+          formData.customerPhone.length < 12
+        )
+          step2Errors.push("customerPhone");
+        return step2Errors.length === 0;
+
+      case 3:
+        // Step 3 has no required fields, always valid
+        return true;
+
+      default:
+        return true;
+    }
+  };
 
   const handleStepChange = (newStep: number) => {
     // If moving forward, validate current step
@@ -199,7 +201,7 @@ export default function BookingPage() {
         }));
         validateField("bookingDate", formData.bookingDate);
         validateField("numberOfTents", formData.numberOfTents.toString());
-      } else if (uiStep === 3) {
+      } else if (uiStep === 2) {
         setTouched((prev) => ({
           ...prev,
           customerName: true,
@@ -264,7 +266,7 @@ export default function BookingPage() {
 
   const refreshSettings = useCallback(async () => {
     if (!isUserInteracting.current && !isRefreshing.current) {
-      console.log("[v0] Refreshing settings - user not interacting");
+      
       try {
         isRefreshing.current = true;
         const settingsData = await fetchPricingSettings();
@@ -275,9 +277,9 @@ export default function BookingPage() {
         isRefreshing.current = false;
       }
     } else {
-      console.log(
-        "[v0] Skipping refresh - user is interacting or already refreshing"
-      );
+      // console.log(
+      //   "[v0] Skipping refresh - user is interacting or already refreshing"
+      // );
     }
   }, []);
 
@@ -302,17 +304,15 @@ export default function BookingPage() {
     };
   }, [refreshSettings]);
 
-const today = new Date();
-const minDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 2);
-const minDateString = minDate.toISOString().split('T')[0];
+  const today = new Date();
+  const minDate = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate() + 2
+  );
+  const minDateString = minDate.toISOString().split("T")[0];
 
-console.log('Min date calculation:', {
-  today: today.toDateString(),
-  minDate: minDate.toDateString(),
-  minDateString: minDateString
-});
-
-
+ 
 
   useEffect(() => {
     if (!settings) return;
@@ -346,7 +346,7 @@ console.log('Min date calculation:', {
 
   const setUserInteracting = useCallback(
     (interacting: boolean, duration = 5000) => {
-      console.log(`[v0] Setting user interaction: ${interacting}`);
+      
       isUserInteracting.current = interacting;
 
       if (interactionTimeoutRef.current) {
@@ -355,7 +355,7 @@ console.log('Min date calculation:', {
 
       if (interacting) {
         interactionTimeoutRef.current = setTimeout(() => {
-          console.log("[v0] User interaction timeout - setting to false");
+        
           isUserInteracting.current = false;
         }, duration);
       }
@@ -366,13 +366,13 @@ console.log('Min date calculation:', {
   const checkDateConstraints = async (dateString: string) => {
     setCheckingConstraints(true);
     try {
-      console.log("[v0] Checking constraints for date:", dateString);
+      
       const response = await fetch(`/api/date-constraints?date=${dateString}`);
       const data = await response.json();
-      console.log("[v0] API response:", data);
+     
 
       if (data.lockedLocation) {
-        console.log("[v0] Date is locked to location:", data.lockedLocation);
+     
         setDateConstraints({
           lockedLocation: data.lockedLocation,
           totalTents: data.totalTents,
@@ -380,7 +380,7 @@ console.log('Min date calculation:', {
           availableLocations: [data.lockedLocation], // Only locked location
         });
 
-        console.log("[v0] Auto-setting location to:", data.lockedLocation);
+        
         setFormData((prev) => ({
           ...prev,
           location: data.lockedLocation as "Desert" | "Mountain" | "Wadi",
@@ -398,7 +398,7 @@ console.log('Min date calculation:', {
           );
         }
       } else {
-        console.log("[v0] Date is available for all locations");
+        
         setDateConstraints({
           lockedLocation: null,
           totalTents: 0,
@@ -408,7 +408,7 @@ console.log('Min date calculation:', {
         setLocationMessage("");
       }
     } catch (error) {
-      console.error("[v0] Error checking date constraints:", error);
+     
       setDateConstraints({
         lockedLocation: null,
         totalTents: 0,
@@ -566,7 +566,7 @@ console.log('Min date calculation:', {
   };
 
   const handleInputChange = (field: string, value: string) => {
-    console.log(`[v0] Input changed - ${field}:`, value);
+    
 
     setFormData((prev) => ({ ...prev, [field]: value }));
     setTouched((prev) => ({ ...prev, [field]: true }));
@@ -584,7 +584,7 @@ console.log('Min date calculation:', {
     };
 
     if (field === "bookingDate" && value) {
-      console.log("[v0] Date selected, checking constraints for:", value);
+      
       const selectedDate = new Date(value);
       setSelectedDate(selectedDate);
       fetchDateConstraints(value);
@@ -642,38 +642,42 @@ console.log('Min date calculation:', {
         }
         break;
       case "bookingDate":
-  if (!value) {
-    newErrors.bookingDate = "Booking date is required";
-  } else {
-    // Simple date comparison without timezone issues
-    const selectedDate = new Date(value);
-    const today = new Date();
-    
-    // Reset both dates to midnight for accurate comparison
-    const selectedMidnight = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate());
-    const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    
-    // Calculate difference in milliseconds and convert to days
-    const diffMs = selectedMidnight.getTime() - todayMidnight.getTime();
-    const diffDays = diffMs / (1000 * 60 * 60 * 24);
-    
-    console.log('Date validation:', {
-      today: todayMidnight.toDateString(),
-      selected: selectedMidnight.toDateString(),
-      diffDays: diffDays,
-      value: value
-    });
-    
-    if (diffDays < 2) {
-      newErrors.bookingDate = `Booking must be at least 2 days in advance (selected date is ${diffDays} day(s) from today)`;
-      if (touched.bookingDate) {
-        // toast.error(`Please select a date at least 2 days from today.`);
-      }
-    } else {
-      delete newErrors.bookingDate;
-    }
-  }
-  break;
+        if (!value) {
+          newErrors.bookingDate = "Booking date is required";
+        } else {
+          // Simple date comparison without timezone issues
+          const selectedDate = new Date(value);
+          const today = new Date();
+
+          // Reset both dates to midnight for accurate comparison
+          const selectedMidnight = new Date(
+            selectedDate.getFullYear(),
+            selectedDate.getMonth(),
+            selectedDate.getDate()
+          );
+          const todayMidnight = new Date(
+            today.getFullYear(),
+            today.getMonth(),
+            today.getDate()
+          );
+
+          // Calculate difference in milliseconds and convert to days
+          const diffMs = selectedMidnight.getTime() - todayMidnight.getTime();
+          const diffDays = diffMs / (1000 * 60 * 60 * 24);
+
+          
+         
+
+          if (diffDays < 2) {
+            newErrors.bookingDate = `Booking must be at least 2 days in advance`;
+            if (touched.bookingDate) {
+              // toast.error(`Please select a date at least 2 days from today.`);
+            }
+          } else {
+            delete newErrors.bookingDate;
+          }
+        }
+        break;
       case "numberOfTents":
         if (formData.location === "Wadi" && formData.numberOfTents < 2) {
           newErrors.numberOfTents = "Wadi location requires at least 2 tents";
@@ -714,28 +718,32 @@ console.log('Min date calculation:', {
       newErrors.customerPhone = "Phone number must start with +971";
     }
 
-   if (!formData.bookingDate) {
-  newErrors.bookingDate = "Booking date is required";
-} else {
-  const selectedDate = new Date(formData.bookingDate);
-  const today = new Date();
-  
-  const selectedMidnight = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate());
-  const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-  
-  const diffTime = selectedMidnight.getTime() - todayMidnight.getTime();
-  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-  
-  console.log('=== SUBMIT VALIDATION DEBUG ===');
-  console.log('Today:', todayMidnight.toDateString());
-  console.log('Selected:', selectedMidnight.toDateString());
-  console.log('Diff in days:', diffDays);
-  console.log('============================');
-  
-  if (diffDays < 2) {
-    newErrors.bookingDate = `Booking must be at least 2 days in advance`;
-  }
-}
+    if (!formData.bookingDate) {
+      newErrors.bookingDate = "Booking date is required";
+    } else {
+      const selectedDate = new Date(formData.bookingDate);
+      const today = new Date();
+
+      const selectedMidnight = new Date(
+        selectedDate.getFullYear(),
+        selectedDate.getMonth(),
+        selectedDate.getDate()
+      );
+      const todayMidnight = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate()
+      );
+
+      const diffTime = selectedMidnight.getTime() - todayMidnight.getTime();
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+     
+
+      if (diffDays < 2) {
+        newErrors.bookingDate = `Booking must be at least 2 days in advance`;
+      }
+    }
 
     if (formData.location === "Wadi" && formData.numberOfTents < 2) {
       newErrors.numberOfTents = "Wadi location requires at least 2 tents";
@@ -822,7 +830,7 @@ console.log('Min date calculation:', {
         window.location.href = url;
       }, 1500);
     } catch (error) {
-      console.error("Booking error:", error);
+     
 
       // Dismiss loading toast and show error
       toast.dismiss(loadingToast);
@@ -837,7 +845,7 @@ console.log('Min date calculation:', {
   };
 
   const handleManualRefresh = async () => {
-    console.log("[v0] Manual refresh triggered");
+    
     isUserInteracting.current = false;
     await refreshSettings();
   };
@@ -867,7 +875,7 @@ console.log('Min date calculation:', {
   }
 
   const handleLocationChange = (location: string) => {
-    console.log("[v0] Location changed to:", location);
+   
     setFormData((prev) => ({ ...prev, location }));
     setTouched((prev) => ({ ...prev, location: true }));
 
@@ -928,6 +936,10 @@ console.log('Min date calculation:', {
                     "/placeholder.svg?height=420&width=1000&query=luxury desert camping" ||
                     "/placeholder.svg" ||
                     "/placeholder.svg" ||
+                    "/placeholder.svg" ||
+                    "/placeholder.svg" ||
+                    "/placeholder.svg" ||
+                    "/placeholder.svg" ||
                     "/placeholder.svg"
                   }
                   alt={campingImages[currentImageIndex].alt}
@@ -949,6 +961,10 @@ console.log('Min date calculation:', {
                     src={
                       image.src ||
                       "/placeholder.svg?height=130&width=200&query=camping scene" ||
+                      "/placeholder.svg" ||
+                      "/placeholder.svg" ||
+                      "/placeholder.svg" ||
+                      "/placeholder.svg" ||
                       "/placeholder.svg"
                     }
                     alt={image.alt}
@@ -968,14 +984,17 @@ console.log('Min date calculation:', {
             {/* LEFT: Main description and CTA */}
             <div className="lg:col-span-2 space-y-6">
               <div className="text-left">
-                <h1 className="text-2xl md:text-3xl font-bold text-[#3C2317] mb-3 ">
-                  Nomadic Camping Rental Setups
+                <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-[#3C2317] mb-3 flex items-center gap-2">
+                  Nomadic Camping Rental Setups 🔥
                 </h1>
+                <p className="text-[#3C2317]/80 text-sm mb-4">
+                  The UAE's ultimate camping experience
+                </p>
                 <div className="flex items-center gap-3 mb-4">
                   <div className="flex items-center space-x-1 text-[#3C2317]/80">
                     <MapPin className="w-4 h-4 text-[#D3B88C]" />
                     <span className="text-sm font-medium">
-                      Desert • Wadi • Mountain
+                      Dubai, Sharjah, Fujairah
                     </span>
                   </div>
                 </div>
@@ -996,40 +1015,59 @@ console.log('Min date calculation:', {
                   memories. Our premium tents are equipped with everything you
                   need for a comfortable and unforgettable stay under the stars.
                 </p>
+                {/* Mobile accordion for full details */}
+                <div className="block sm:hidden">
+                  <Accordion type="single" collapsible className="w-full">
+                    <AccordionItem value="details">
+                      <AccordionTrigger className="text-[#3C2317] text-base">
+                        Read full details
+                      </AccordionTrigger>
+                      <AccordionContent className="text-[#3C2317]/80 text-sm leading-relaxed bg-[#E6CFA9]/30 rounded-md p-3">
+                        Experience the UAE's most luxurious camping adventure
+                        with Nomadic. We handle all the setup, so you can focus
+                        on making memories. Our premium tents are equipped with
+                        everything you need for a comfortable and unforgettable
+                        stay under the stars.
+                      </AccordionContent>
+                    </AccordionItem>
+                  </Accordion>
+                </div>
               </div>
-             <section className="bg-gradient-to-r from-[#E6CFA9] to-[#D3B88C] rounded-2xl p-4 sm:p-6 lg:p-8 shadow-lg border border-[#3C2317]/10">
-  <div className="flex flex-col lg:flex-row items-center lg:items-end justify-between gap-4 sm:gap-6 text-center lg:text-left">
-    {/* Text Content */}
-    <div className="max-w-lg">
-      <h2 className="text-[#3C2317] text-lg sm:text-xl lg:text-2xl font-bold mb-2 sm:mb-3 text-balance">
-        Ready for hassle-free camping?
-      </h2>
-      <p className="text-[#3C2317]/80 text-sm sm:text-base leading-relaxed">
-        Book your Nomadic setup now and experience the UAE's wild beauty —
-        without lifting a finger.
-      </p>
-    </div>
+              {/* Updated CTA Box */}
+              <section className="bg-gradient-to-r from-[#E6CFA9] to-[#D3B88C] rounded-2xl p-4 sm:p-6 lg:p-8 shadow-lg border border-[#3C2317]/10 w-fit">
+                <div className="flex flex-col lg:flex-column items-center lg:items-start justify-between gap-4 sm:gap-6 text-center lg:text-left">
+                  {/* Text Content */}
+                  <div className="max-w-lg">
+                    <h2 className="text-[#3C2317] text-lg sm:text-xl lg:text-2xl font-bold mb-2 sm:mb-3 text-balance">
+                      Ready to book your camping setup?
+                    </h2>
+                    <p className="text-[#3C2317]/80 text-sm sm:text-base leading-relaxed">
+                      Book your Nomadic setup now and experience the UAE's wild
+                      beauty, without lifting a finger.
+                    </p>
+                  </div>
 
-    {/* Button */}
-    <Button
-      size="lg"
-      className="w-full sm:w-auto bg-[#3C2317] text-[#FBF9D9] hover:bg-[#3C2317] font-bold text-sm sm:text-base px-6 sm:px-10 py-3 sm:py-4 rounded-xl shadow-lg  transition-all duration-300 transform hover:scale-105 cursor-pointer"
-      onClick={() => {
-        setShowBookingFlow(true);
-        setTimeout(() => {
-          stepperSectionRef.current?.scrollIntoView({
-            behavior: "smooth",
-            block: "start",
-          });
-        }, 100);
-      }}
-    >
-      Book Your Setup Now
-    </Button>
-  </div>
-</section>
+                  {/* Button */}
+                  <Button
+                    size="lg"
+                    className="w-full sm:w-auto bg-[#3C2317] text-[#FBF9D9] hover:bg-[#3C2317] font-bold text-sm sm:text-base px-6 sm:px-10 py-3 sm:py-4 rounded-xl shadow-lg  transition-all duration-300 transform hover:scale-105 cursor-pointer"
+                    onClick={() => {
+                      setShowBookingFlow(true);
+                      setTimeout(() => {
+                        stepperSectionRef.current?.scrollIntoView({
+                          behavior: "smooth",
+                          block: "start",
+                        });
+                      }, 100);
+                    }}
+                  >
+                    Book Your Setup Now
+                  </Button>
+                </div>
+              </section>
 
               <div className="space-y-8">
+                {/* Itinerary */}
                 {/* Itinerary */}
                 <section className="pl-3 border-l-3 border-[#D3B88C]">
                   <div className="flex items-center gap-2 mb-3">
@@ -1040,29 +1078,38 @@ console.log('Min date calculation:', {
                       Itinerary
                     </h3>
                   </div>
-                  <ol className="space-y-3">
+
+                  <ol className="space-y-6">
+                    {" "}
+                    {/* increased spacing for clarity */}
                     {[
-                      "Arrival at meeting point (16:30, 17:00, or 17:30 – see booking confirmation)",
-                      "Meet camp leader, transfer or drive to camp",
-                      "Camp walkthrough & safety briefing",
-                      "Free time: BBQ, campfire, stargazing",
-                      "Checkout anytime before 12:00 (arrange pickup with camp leader in advance)",
-                      "Take all trash with you (#LeaveNoTrace)",
+                      "Arrival at meeting point (16:30, 17:00 or 17:30 see confirmation email upon booking).",
+                      "Meet your camp leader. Park and transfer, or drive your own 4x4.",
+                      "Camp walkthrough & safety briefing.",
+                      "Enjoy your Nomadic setup at your leisure, BBQ, campfire, stargazing.",
+                      "Relaxed checkout anytime up to 12:00.",
+                      "Agree pickup time with the camp leader in advance, or message at least 90 minutes before leaving.",
+                      "Take all trash with you to keep nature pristine #LeaveNoTrace",
                     ].map((step, idx, arr) => (
                       <li
                         key={idx}
-                        className="relative flex items-start gap-3 text-xs text-[#3C2317]/90 leading-relaxed"
+                        className="relative flex gap-4 text-xs text-[#3C2317]/90 leading-relaxed"
                       >
-                        <span className="relative mt-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#3C2317] text-[#FBF9D9] text-xs font-bold ring-1 ring-[#D3B88C] flex-shrink-0">
+                        {/* Number circle */}
+                        <span className="relative z-10 flex h-7 w-7 items-center justify-center rounded-full bg-[#3C2317] text-[#FBF9D9] text-xs font-bold ring-1 ring-[#D3B88C]">
                           {idx + 1}
                         </span>
+
+                        {/* Vertical line (only if not last item) */}
                         {idx < arr.length - 1 && (
                           <span
                             aria-hidden
-                            className="absolute left-3 top-6 bottom-[-10px] w-px bg-[#3C2317]/30"
+                            className="absolute left-[13px] top-7 bottom-[-22px] w-px bg-[#3C2317]/30"
                           />
                         )}
-                        <span className="flex-1 min-w-0">{step}</span>
+
+                        {/* Step text */}
+                        <span className="flex-1 min-w-0 pt-1">{step}</span>
                       </li>
                     ))}
                   </ol>
@@ -1078,34 +1125,47 @@ console.log('Min date calculation:', {
                       Know Before You Go
                     </h3>
                   </div>
-                  <ul className="space-y-2 text-xs text-[#3C2317]/90 leading-relaxed">
+                  <ul className="space-y-3 text-xs text-[#3C2317]/90 leading-relaxed">
                     {[
                       {
-                        title: "Getting There",
+                        title: "Getting there",
                         content:
-                          "all cars can reach the meeting point; transfers available if you don't have a 4x4.",
+                          "Camping Setups are in quiet, natural spots that may be tricky for saloon cars but all cars can reach the meeting points.",
                       },
                       {
-                        title: "Meeting Point",
-                        content: "Google Maps pin sent by email after booking.",
+                        title: "Don't have a 4x4?",
+                        content:
+                          "Park at the meeting point - our team will transfer you and your belongings to your camp.",
+                      },
+                      {
+                        title: "Driving a 4x4?",
+                        content:
+                          "You can head straight to your setup and follow our camp leader.",
+                      },
+                      {
+                        title: "Meeting point",
+                        content:
+                          "You'll receive a Google Maps pin by email once booked. Meet your camp leader there, then follow them to your setup or transfer with them.",
                       },
                       {
                         title: "Clothing",
-                        content: "evenings can be chilly, bring warm clothes.",
+                        content:
+                          "Evenings can get chilly, especially Dec–Jan. Bring warm jumpers to enjoy the night sky by the fire.",
                       },
                       {
                         title: "Pets",
                         content:
-                          "welcome with own bedding, provided they don't damage equipment.",
+                          "Pets are welcome as long as you provide their bedding and they don't damage equipment.",
                       },
                       {
                         title: "Environment",
-                        content: "take all trash with you (#LeaveNoTrace).",
+                        content:
+                          "Help us preserve these incredible landscapes. Please take all the trash with you. Bin bags are provided. #LeaveNoTrace",
                       },
                       {
-                        title: "What to Bring",
+                        title: "What to bring",
                         content:
-                          "food, drinks, charcoal/firewood (or add-ons), power bank (generator available for AED 250 + VAT).",
+                          "Food & drinks, Charcoal & firewood (or book as add-ons), Power bank (generators available on request: 250 AED + VAT)",
                       },
                     ].map((item, i) => (
                       <li key={i} className="flex items-start gap-2">
@@ -1133,11 +1193,11 @@ console.log('Min date calculation:', {
                       Cancellation Policy
                     </h3>
                   </div>
-                  <ul className="space-y-2 text-xs text-[#3C2317]/90 leading-relaxed">
+                  <ul className="space-y-3 text-xs text-[#3C2317]/90 leading-relaxed">
                     {[
-                      "All bookings non-refundable",
-                      "Free date changes up to 72 hours before arrival (subject to availability)",
-                      "Changes within 72 hours incur additional fees",
+                      "All bookings are non-refundable.",
+                      "Free date changes up to 72 hours before arrival (subject to availability).",
+                      "Changes within 72 hours of your booking are subject to availability and incur additional fees.",
                     ].map((item, i) => (
                       <li key={i} className="flex items-start gap-2">
                         <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full ring-1 ring-[#D3B88C] text-[#3C2317] flex-shrink-0">
@@ -1149,28 +1209,10 @@ console.log('Min date calculation:', {
                   </ul>
                 </section>
               </div>
-
-              {/* Mobile accordion for full details */}
-              <div className="block sm:hidden">
-                <Accordion type="single" collapsible className="w-full">
-                  <AccordionItem value="details">
-                    <AccordionTrigger className="text-[#3C2317] text-base">
-                      Read full details
-                    </AccordionTrigger>
-                    <AccordionContent className="text-[#3C2317]/80 text-sm leading-relaxed bg-[#E6CFA9]/30 rounded-md p-3">
-                      Experience the UAE's most luxurious camping adventure with
-                      Nomadic. We handle all the setup, so you can focus on
-                      making memories. Our premium tents are equipped with
-                      everything you need for a comfortable and unforgettable
-                      stay under the stars.
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-              </div>
             </div>
             {/* RIGHT: Book Your Setup Now + Highlights + Included/Not Included */}
             <aside className="space-y-6 sm:space-y-4 lg:space-y-4 lg:sticky lg:top-24 h-max">
-              <Card className="border border-[#D3B88C]/40 shadow-md bg-gradient-to-br from-[#FBF9D9] to-[#E6CFA9] rounded-lg lg:rounded-xl overflow-hidden !pt-0">
+              <Card className="border-[#D3B88C]/40 shadow-md bg-gradient-to-br from-[#FBF9D9] to-[#E6CFA9] rounded-lg lg:rounded-xl overflow-hidden !pt-0">
                 <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 px-2 sm:px-3 lg:px-4 h-8 sm:h-10 py-1.5 sm:py-2 border-b border-[#D3B88C]/30">
                   <CardTitle className="text-[#3C2317] flex items-center text-sm sm:text-sm lg:text-base font-bold tracking-wide">
                     <Check className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 text-[#3C2317]" />
@@ -1201,7 +1243,7 @@ console.log('Min date calculation:', {
               {/* What's Included and Not Included stacked */}
               <div className="grid grid-cols-1 gap-2 sm:gap-3">
                 {/* What's Included */}
-                <Card className="border border-[#D3B88C]/40 shadow-md bg-gradient-to-br from-[#FBF9D9] to-[#E6CFA9] rounded-lg lg:rounded-xl overflow-hidden !pt-0">
+                <Card className="border-[#D3B88C]/40 shadow-md bg-gradient-to-br from-[#FBF9D9] to-[#E6CFA9] rounded-lg lg:rounded-xl overflow-hidden !pt-0">
                   <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 px-2 sm:px-3 lg:px-4 h-8 sm:h-10 py-1.5 sm:py-2 border-b border-[#D3B88C]/30">
                     <CardTitle className="text-[#3C2317] flex items-center text-sm sm:text-sm lg:text-base font-bold tracking-wide">
                       <Check className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 text-[#3C2317]" />
@@ -1212,12 +1254,12 @@ console.log('Min date calculation:', {
                     <ul className="divide-y divide-[#3C2317]/15 text-xs text-[#3C2317]">
                       {[
                         "Canvas Nomadic Tent (sleeps up to 4 people, singles & doubles available)",
-                        "Beds with bedding, pillows, blankets",
-                        "Lighting (tent + outdoor)",
+                        "Beds with all bedding, pillows, and blankets",
+                        "Tent & outdoor lighting",
                         "Fire lanterns (with fuel)",
-                        "Foldable chairs + picnic blanket",
-                        "BBQ & raised fire pit (with firelighters + lighter)",
-                        "Gas stove with pots, frying pan & utensils",
+                        "Foldable chairs & picnic blanket",
+                        "Raised BBQ & raised fire pit (with firelighters + lighter)",
+                        "Gas stove with fuel, pots, frying pan & cooking utensils",
                         "Plates, cutlery & picnic basket",
                         "Cooler box & raised table",
                       ].map((item, i) => (
@@ -1233,7 +1275,7 @@ console.log('Min date calculation:', {
                 </Card>
 
                 {/* Not Included */}
-                <Card className="border border-[#D3B88C]/40 shadow-md bg-gradient-to-br from-[#FBF9D9] to-[#E6CFA9] rounded-lg lg:rounded-xl overflow-hidden !pt-0">
+                <Card className="border-[#D3B88C]/40 shadow-md bg-gradient-to-br from-[#FBF9D9] to-[#E6CFA9] rounded-lg lg:rounded-xl overflow-hidden !pt-0">
                   <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 px-2 sm:px-3 lg:px-4 h-8 sm:h-10 py-1.5 sm:py-2 border-b border-[#D3B88C]/30">
                     <CardTitle className="text-[#3C2317] flex items-center text-sm sm:text-sm lg:text-base font-bold tracking-wide">
                       <X className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 text-[#3C2317]" />
@@ -1259,11 +1301,44 @@ console.log('Min date calculation:', {
 
                     <div className="mt-2 sm:mt-3 p-2 sm:p-3 bg-[#E6CFA9]/60 rounded-md sm:rounded-lg border border-[#D3B88C]/30">
                       <p className="text-xs text-[#3C2317] leading-relaxed">
-                        💡 Pro Tip: Bring food, drinks, and a power bank. Add
-                        charcoal & firewood to your booking (or bring your own)
-                        - everything else is already waiting.
+                        💡 Pro Tip: Bring your food, drinks, and a power bank.
+                        Add charcoal & firewood to your booking (or bring your
+                        own) - everything else is already waiting for you.
                       </p>
                     </div>
+                  </CardContent>
+                </Card>
+                <Card className="border border-[#D3B88C]/40 bg-gradient-to-br from-[#FBF9D9] via-[#F5EBD0] to-[#E6CFA9] rounded-2xl shadow-lg sm:p-8 p-5 text-center">
+                  <CardContent className="flex flex-col items-center space-y-3">
+                    {/* Heading */}
+                    <h3 className="text-[#3C2317] font-bold text-2xl">
+                      Got a Question?
+                    </h3>
+                    <p className="text-[#3C2317]/80 text-sm leading-relaxed max-w-xs mx-auto">
+                      Whether it’s a quick question or a booking request, we’re
+                      just a WhatsApp message away.
+                    </p>
+
+                    {/* Single WhatsApp Button */}
+                    <Button
+                      onClick={() =>
+                        window.open(
+                          "https://wa.me/971585271420?text=Hi%21%20I%20have%20a%20question%20about%20the%20Nomadic%20camping%20setup.",
+                          "_blank"
+                        )
+                      }
+                      className="bg-[#128C7E] hover:bg-[#128C7E] text-white px-8 py-2 rounded-full flex items-center justify-center gap-2 text-sm font-medium shadow-md hover:shadow-lg transition cursor-pointer"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 32 32"
+                        fill="currentColor"
+                        className="w-5 h-5"
+                      >
+                        <path d="M16 0C7.2 0 0 7.2 0 16c0 2.8.7 5.5 2.1 7.9L0 32l8.3-2.2c2.3 1.3 4.9 2 7.7 2 8.8 0 16-7.2 16-16S24.8 0 16 0zm0 29c-2.5 0-4.9-.7-7-2l-.5-.3-4.9 1.3 1.3-4.8-.3-.5C3.4 21.6 3 18.8 3 16 3 8.8 8.8 3 16 3s13 5.8 13 13-5.8 13-13 13zm7.4-9.4c-.4-.2-2.3-1.1-2.6-1.2-.4-.2-.6-.2-.9.2-.3.4-1 1.2-1.2 1.4-.2.2-.4.3-.8.1-.4-.2-1.6-.6-3-1.9-1.1-1-1.9-2.2-2.1-2.6-.2-.4 0-.6.2-.8.2-.2.4-.4.6-.6.2-.2.3-.4.5-.6.2-.2.2-.4.1-.7s-.9-2.1-1.3-2.9c-.3-.7-.6-.6-.9-.6h-.8c-.3 0-.7.1-1.1.5-.4.4-1.5 1.4-1.5 3.4s1.6 3.9 1.8 4.2c.2.3 3.1 4.7 7.7 6.6 1.1.5 2 .8 2.7 1 .6.2 1.1.2 1.6.1.5-.1 1.6-.6 1.8-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.7-.4z" />
+                      </svg>
+                      Enquire Now
+                    </Button>
                   </CardContent>
                 </Card>
               </div>
@@ -1285,8 +1360,8 @@ console.log('Min date calculation:', {
               active={uiStep}
               steps={[
                 { label: "Step 1: Select Date/Location" },
-                { label: "Step 2: Add-Ons Selection" },
-                { label: "Step 3: Add Personal Details" },
+                { label: "Step 2: Add Info/addOns" },
+                { label: "Step 3: Payment" },
               ]}
               onChange={handleStepChange}
             />
@@ -1378,7 +1453,7 @@ console.log('Min date calculation:', {
                       Location & Setup
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="p-3 sm:p-4 lg:p-6 !pt-0 space-y-3 sm:space-y-4">
+                  <CardContent className="p-3 sm:p-4 lg:p-6 space-y-3 sm:space-y-4 !pt-0">
                     <div className="space-y-2">
                       <Label
                         htmlFor="location"
@@ -1399,23 +1474,12 @@ console.log('Min date calculation:', {
                         onValueChange={(
                           value: "Desert" | "Mountain" | "Wadi"
                         ) => {
-                          console.log("[v0] Location changed to:", value);
-                          console.log(
-                            "[v0] Available locations:",
-                            dateConstraints.availableLocations
-                          );
-                          console.log(
-                            "[v0] Locked location:",
-                            dateConstraints.lockedLocation
-                          );
-
+                         
                           if (
                             dateConstraints.lockedLocation &&
                             value !== dateConstraints.lockedLocation
                           ) {
-                            console.log(
-                              "[v0] Preventing location change - date is locked"
-                            );
+                            
                             setLocationMessage(
                               `This date is reserved for ${dateConstraints.lockedLocation} location only. Please select a different date to book ${value}.`
                             );
@@ -1476,20 +1540,16 @@ console.log('Min date calculation:', {
 
                       {formData.location === "Wadi" && (
                         <div className="space-y-2">
-                          <div className="p-2 sm:p-3 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
+                          {/* <div className="p-2 sm:p-3 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
                             <div className="flex items-center space-x-2">
                               <div className="text-xs sm:text-sm">
-                                <span className="font-medium text-blue-800">
-                                  Premium Wadi Location
-                                </span>
+                                
                                 <p className="text-blue-700 mt-1 leading-relaxed">
-                                  Scenic valley setting with enhanced privacy •
-                                  Requires minimum 2 tents • Additional 250 AED
-                                  surcharge
+                                  Requires minimum 2 tents. Additional 250 AED surcharge per extra tent.
                                 </p>
                               </div>
                             </div>
-                          </div>
+                          </div> */}
 
                           {dateConstraints.remainingCapacity < 2 && (
                             <div className="p-2 sm:p-3 bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 rounded-lg">
@@ -1528,8 +1588,7 @@ console.log('Min date calculation:', {
                           <div className="flex items-center space-x-2">
                             <div className="w-2 h-2 bg-amber-500 rounded-full flex-shrink-0"></div>
                             <span className="text-xs sm:text-sm font-medium text-amber-800">
-                              Classic Desert Experience • No additional
-                              surcharge
+                              Nomadic Camping Desert
                             </span>
                           </div>
                         </div>
@@ -1751,13 +1810,14 @@ console.log('Min date calculation:', {
                   </CardContent>
                 </Card>
 
-                <div className="flex justify-between sm:justify-end sm:gap-5 pt-2 sm:pt-3">
+                <div className="flex justify-between sm:justify-between sm:gap-5 pt-2 sm:pt-3">
                   <Button
                     type="button"
                     variant="outline"
-                    disabled
-                    onClick={() => handleStepChange(1)}
-                    className="border-none text-[#3C2317]/40 bg-gray-200 cursor-not-allowed"
+                    onClick={() => {
+                      setShowBookingFlow(false);
+                    }}
+                    className="border-none text-[#3C2317] cursor-pointer hover:bg-[#3C2317] hover:text-[#FBF9D9]"
                   >
                     Back
                   </Button>
@@ -1773,7 +1833,7 @@ console.log('Min date calculation:', {
               </>
             )}
 
-            {/* show only Step 2 card when uiStep === 2 and add Back/Next buttons */}
+            {/* Step 2: Personal Info & Add-Ons */}
             {uiStep === 2 && (
               <>
                 <Card className="border-[#D3B88C]/50 shadow-lg hover:shadow-xl transition-all duration-300 bg-[#FBF9D9]/80 backdrop-blur-sm !pt-0">
@@ -1938,32 +1998,6 @@ console.log('Min date calculation:', {
                     </CardContent>
                   </Card>
                 )}
-                <div className="flex justify-between sm:justify-end sm:gap-5 pt-2 sm:pt-3">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => handleStepChange(1)}
-                    className="border-none text-[#3C2317] cursor-pointer hover:bg-[#3C2317] hover:text-[#FBF9D9]"
-                  >
-                    Back
-                  </Button>
-                  <Button
-                    type="button"
-                    onClick={() => handleStepChange(3)}
-                    className="bg-[#3C2317] text-[#FBF9D9] hover:bg-[#5D4037] cursor-pointer"
-                  >
-                    Next
-                  </Button>
-                </div>
-              </>
-            )}
-
-            {/* only render Step 3 card when uiStep === 3; also close the missing </form> */}
-            {uiStep === 3 && (
-              <form
-                className="space-y-3 sm:space-4 lg:space-y-6"
-                onSubmit={handleSubmit}
-              >
                 <Card className="border-[#D3B88C]/50 shadow-lg hover:shadow-xl transition-all duration-300 bg-[#FBF9D9]/80 backdrop-blur-sm !pt-0">
                   <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 border-b border-[#D3B88C]/50 h-10 sm:h-12 py-2 sm:py-3 px-3 sm:px-6">
                     <CardTitle className="text-[#3C2317] text-sm sm:text-base lg:text-lg">
@@ -2076,33 +2110,69 @@ console.log('Min date calculation:', {
                   </CardContent>
                 </Card>
 
+                <div className="flex justify-between sm:justify-between sm:gap-5 pt-2 sm:pt-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => handleStepChange(1)}
+                    className="border-none text-[#3C2317] cursor-pointer hover:bg-[#3C2317] hover:text-[#FBF9D9]"
+                  >
+                    Back
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={() => handleStepChange(3)}
+                    className="bg-[#3C2317] text-[#FBF9D9] hover:bg-[#5D4037] cursor-pointer"
+                  >
+                    Next
+                  </Button>
+                </div>
+              </>
+            )}
+
+            {/* Step 3: Payment */}
+            {uiStep === 3 && (
+              <form
+                className="space-y-3 sm:space-4 lg:space-y-6"
+                onSubmit={handleSubmit}
+              >
                 <Card className="border-[#D3B88C]/50 shadow-lg hover:shadow-xl transition-all duration-300 bg-[#FBF9D9]/80 backdrop-blur-sm !pt-0">
                   <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 border-b border-[#D3B88C]/50 h-10 sm:h-12 py-2 sm:py-3 px-3 sm:px-6">
                     <CardTitle className="text-[#3C2317] text-sm sm:text-base lg:text-lg">
-                      Special Requests
+                      Payment
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="p-3 sm:p-4 lg:p-6 !pt-0">
-                    <Label
-                      htmlFor="notes"
-                      className="text-[#3C2317] mb-2 block font-medium text-xs sm:text-sm"
-                    >
-                      Additional Notes
-                    </Label>
-                    <Textarea
-                      id="notes"
-                      placeholder="Any special requests, dietary requirements, or celebration details..."
-                      value={formData.notes}
-                      onChange={(e) =>
-                        handleInputChange("notes", e.target.value)
-                      }
-                      rows={3}
-                      className="border-2 border-[#D3B88C] focus:border-[#3C2317] focus:ring-2 focus:ring-[#3C2317]/20 transition-all duration-300 rounded-lg sm:rounded-xl resize-none text-xs sm:text-sm"
-                    />
+                  <CardContent className=" space-y-3 sm:space-y-4 !pt-0">
+                    <div className="bg-[#D3B88C]/20 p-8 rounded-lg text-center">
+                      <h4 className="font-bold text-[#3C2317] mb-3 text-2xl">
+                        Complete Your Booking
+                      </h4>
+                      <p className="text-sm text-[#3C2317]/80 mb-6">
+                        Secure payment processing to finalize your reservation
+                      </p>
+                      <Button
+                        onClick={handleSubmit}
+                        type="submit"
+                        className="bg-[#3C2317] text-[#FBF9D9] hover:bg-[#5D4037] cursor-pointer px-8 py-3"
+                        disabled={isLoading}
+                      >
+                        {isLoading ? (
+                          <div className="flex items-center space-x-2">
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <span>Processing...</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center space-x-2">
+                            <Shield className="w-4 h-4" />
+                            <span>Complete Booking</span>
+                          </div>
+                        )}
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
 
-                <div className="flex justify-between sm:justify-end sm:gap-5 pt-2 sm:pt-3">
+                <div className="flex justify-start pt-2 sm:pt-3">
                   <Button
                     type="button"
                     variant="outline"
@@ -2110,24 +2180,6 @@ console.log('Min date calculation:', {
                     className="border-none text-[#3C2317] cursor-pointer hover:bg-[#3C2317] hover:text-[#FBF9D9]"
                   >
                     Back
-                  </Button>
-                  <Button
-                    onClick={handleSubmit}
-                    type="submit"
-                    className="bg-[#3C2317] text-[#FBF9D9] hover:bg-[#5D4037] cursor-pointer"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <div className="flex items-center space-x-2">
-                        <Loader2 className="w-3 h-3 sm:w-4 sm:h-4 animate-spin" />
-                        <span>Processing...</span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center space-x-2">
-                        <Shield className="w-3 h-3 sm:w-4 sm:h-4" />
-                        <span>Complete Booking</span>
-                      </div>
-                    )}
                   </Button>
                 </div>
               </form>
@@ -2145,7 +2197,7 @@ console.log('Min date calculation:', {
                     <span>Booking Summary</span>
                   </CardTitle>
                   <p className="text-[#FBF9D9]/90 text-xs sm:text-sm">
-                    Your luxury camping experience
+                    The UAE’s ultimate camping experience
                   </p>
                 </div>
               </CardHeader>
@@ -2200,17 +2252,16 @@ console.log('Min date calculation:', {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-2">
                           <span className="text-blue-800 font-medium text-xs sm:text-sm">
-                            Wadi Premium Location
+                            Wadi Location
                           </span>
                         </div>
                         <span className="text-blue-900 font-semibold text-xs sm:text-sm">
                           +AED {settings?.wadiSurcharge || 250}
                         </span>
                       </div>
-                      <p className="text-blue-700 text-xs mt-1">
-                        Includes exclusive desert location access and enhanced
-                        amenities
-                      </p>
+                      {/* <p className="text-blue-700 text-xs mt-1">
+                        Includes exclusive desert location access and enhanced amenities
+                      </p> */}
                     </div>
                   )}
 
@@ -2297,69 +2348,85 @@ console.log('Min date calculation:', {
                     to complete your payment safely.
                   </p>
                 </div>
-<div className="bg-gradient-to-r from-[#E6CFA9]/50 to-[#D3B88C]/20 p-3 sm:p-4 lg:p-5 rounded-xl lg:rounded-2xl border border-[#3C2317]/10 shadow-md hover:shadow-lg transition-all duration-300">
-  <h4 className="font-bold text-[#3C2317] mb-3 sm:mb-4 text-sm sm:text-base lg:text-lg border-b border-[#3C2317]/20 pb-2">
-    Pricing Guide
-  </h4>
+                <div className="bg-gradient-to-r from-[#E6CFA9]/50 to-[#D3B88C]/20 p-3 sm:p-4 lg:p-5 rounded-xl lg:rounded-2xl border border-[#3C2317]/10 shadow-md hover:shadow-lg transition-all duration-300">
+                  <h4 className="font-bold text-[#3C2317] mb-3 sm:mb-4 text-sm sm:text-base lg:text-lg border-b border-[#3C2317]/20 pb-2">
+                    Pricing Guide
+                  </h4>
 
-  <div className="space-y-3 sm:space-y-3">
-    {/* Weekdays */}
-    <div className="flex justify-between items-center">
-      <span className="text-[11px] sm:text-xs text-[#3C2317]/80 flex items-center gap-2">
-        <i className="fa-regular fa-calendar-days"></i> Weekdays (Mon–Thu)
-      </span>
-      <span className="font-semibold text-[11px] sm:text-xs text-[#3C2317]">
-        AED 1297.80 + VAT
-      </span>
-    </div>
+                  <div className="space-y-3 sm:space-3">
+                    {/* Weekdays */}
+                    <div className="flex justify-between items-center">
+                      <span className="text-[11px] sm:text-xs text-[#3C2317]/80 flex items-center gap-2">
+                        <i className="fa-regular fa-calendar-days"></i> Weekdays
+                        (Mon–Thu)
+                      </span>
+                      <span className="font-semibold text-[11px] sm:text-xs text-[#3C2317]">
+                        AED{" "}
+                        {(
+                          settings?.tentPrice || DEFAULT_SETTINGS.tentPrice
+                        ).toFixed(2)}{" "}
+                        + VAT
+                      </span>
+                    </div>
 
-    {/* Weekends */}
-    <div className="flex justify-between items-center">
-      <span className="text-[11px] sm:text-xs text-[#3C2317]/80 flex items-center gap-2">
-        <i className="fa-solid fa-calendar-week"></i> Weekends (Fri–Sun)
-      </span>
-      <span className="font-semibold text-[11px] sm:text-xs text-[#3C2317]">
-        AED 1497.80 + VAT
-      </span>
-    </div>
+                    {/* Weekends */}
+                    <div className="flex justify-between items-center">
+                      <span className="text-[11px] sm:text-xs text-[#3C2317]/80 flex items-center gap-2">
+                        <i className="fa-solid fa-calendar-week"></i> Weekends
+                        (Fri–Sun)
+                      </span>
+                      <span className="font-semibold text-[11px] sm:text-xs text-[#3C2317]">
+                        AED{" "}
+                        {(
+                          (settings?.tentPrice || DEFAULT_SETTINGS.tentPrice) +
+                          200
+                        ).toFixed(2)}{" "}
+                        + VAT
+                      </span>
+                    </div>
 
-    {/* 2+ tents */}
-    <div className="flex justify-between items-center">
-      <span className="text-[11px] sm:text-xs text-[#3C2317]/80 flex items-center gap-2">
-        <i className="fa-solid fa-campground"></i> 2+ tents (any day)
-      </span>
-      <span className="font-semibold text-[11px] sm:text-xs text-[#3C2317]">
-        AED 1297.80 each + VAT
-      </span>
-    </div>
+                    {/* 2+ tents */}
+                    <div className="flex justify-between items-center">
+                      <span className="text-[11px] sm:text-xs text-[#3C2317]/80 flex items-center gap-2">
+                        <i className="fa-solid fa-campground"></i> 2+ tents (any
+                        day)
+                      </span>
+                      <span className="font-semibold text-[11px] sm:text-xs text-[#3C2317]">
+                        AED{" "}
+                        {(
+                          settings?.tentPrice || DEFAULT_SETTINGS.tentPrice
+                        ).toFixed(2)}{" "}
+                        each + VAT
+                      </span>
+                    </div>
 
-    {/* Wadi surcharge */}
-    <div className="flex justify-between items-center">
-      <span className="text-[11px] sm:text-xs text-[#3C2317]/80 flex items-center gap-2">
-        <i className="fa-solid fa-mountain"></i> Wadi surcharge
-      </span>
-      <span className="font-semibold text-[11px] sm:text-xs text-[#3C2317]">
-        AED {settings?.wadiSurcharge || 250}
-      </span>
-    </div>
+                    {/* Wadi surcharge */}
+                    <div className="flex justify-between items-center">
+                      <span className="text-[11px] sm:text-xs text-[#3C2317]/80 flex items-center gap-2">
+                        <i className="fa-solid fa-mountain"></i> Wadi surcharge
+                      </span>
+                      <span className="font-semibold text-[11px] sm:text-xs text-[#3C2317]">
+                        AED{" "}
+                        {settings?.wadiSurcharge ||
+                          DEFAULT_SETTINGS.wadiSurcharge}
+                      </span>
+                    </div>
 
-    {/* Children bonus */}
-    <div className="border-t border-[#3C2317]/20 pt-2 sm:pt-3 mt-2 space-y-1">
-      <div className="flex justify-between items-center">
-        <span className="text-[11px] sm:text-xs text-[#3C2317]/90 flex items-center gap-2">
-          <i className="fa-solid fa-gift text-[#3C2317]"></i> Children bonus
-        </span>
-        <span className="font-semibold text-[11px] sm:text-xs text-[#3C2317]">
-          FREE portable toilet
-        </span>
-      </div>
-      <p className="text-[10px] sm:text-xs text-[#3C2317]/70 italic mt-2">
-        🎁 Free Portable Camping Toilet for Family Booking
-      </p>
-    </div>
-  </div>
-</div>
-
+                    {/* Children bonus */}
+                    {children > 0 && (
+                      <div className="border-t border-[#3C2317]/20 pt-2 sm:pt-3 mt-2 space-y-1">
+                        <div className="flex justify-between items-center">
+                          <span className="text-[11px] sm:text-xs text-[#3C2317]/90 flex items-center gap-2">
+                            🚻 Family bookings
+                          </span>
+                          <span className="font-semibold text-[11px] sm:text-xs text-[#3C2317]">
+                            FREE portable toilet
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </div>

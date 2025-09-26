@@ -1,8 +1,8 @@
 export const DEFAULT_SETTINGS = {
   tentPrices: {
-    weekday: 1297.8, // Mon-Thu pricing
-    weekend: 1497.8, // Fri-Sun pricing
-    multipleTents: 1297.8, // 2+ tents always use this price
+    weekday: 1297, // Mon-Thu pricing
+    weekend: 1497, // Fri-Sun pricing
+    multipleTents: 1297, // 2+ tents always use this price
   },
   addOnPrices: {
     charcoal: 60,
