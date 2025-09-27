@@ -269,7 +269,6 @@ export default function BookingPage() {
 
   const refreshSettings = useCallback(async () => {
     if (!isUserInteracting.current && !isRefreshing.current) {
-      
       try {
         isRefreshing.current = true;
         const settingsData = await fetchPricingSettings();
@@ -315,8 +314,6 @@ export default function BookingPage() {
   );
   const minDateString = minDate.toISOString().split("T")[0];
 
- 
-
   useEffect(() => {
     if (!settings) return;
 
@@ -349,7 +346,6 @@ export default function BookingPage() {
 
   const setUserInteracting = useCallback(
     (interacting: boolean, duration = 5000) => {
-      
       isUserInteracting.current = interacting;
 
       if (interactionTimeoutRef.current) {
@@ -358,7 +354,6 @@ export default function BookingPage() {
 
       if (interacting) {
         interactionTimeoutRef.current = setTimeout(() => {
-        
           isUserInteracting.current = false;
         }, duration);
       }
@@ -369,13 +364,10 @@ export default function BookingPage() {
   const checkDateConstraints = async (dateString: string) => {
     setCheckingConstraints(true);
     try {
-      
       const response = await fetch(`/api/date-constraints?date=${dateString}`);
       const data = await response.json();
-     
 
       if (data.lockedLocation) {
-     
         setDateConstraints({
           lockedLocation: data.lockedLocation,
           totalTents: data.totalTents,
@@ -383,7 +375,6 @@ export default function BookingPage() {
           availableLocations: [data.lockedLocation], // Only locked location
         });
 
-        
         setFormData((prev) => ({
           ...prev,
           location: data.lockedLocation as "Desert" | "Mountain" | "Wadi",
@@ -401,7 +392,6 @@ export default function BookingPage() {
           );
         }
       } else {
-        
         setDateConstraints({
           lockedLocation: null,
           totalTents: 0,
@@ -411,7 +401,6 @@ export default function BookingPage() {
         setLocationMessage("");
       }
     } catch (error) {
-     
       setDateConstraints({
         lockedLocation: null,
         totalTents: 0,
@@ -569,8 +558,6 @@ export default function BookingPage() {
   };
 
   const handleInputChange = (field: string, value: string) => {
-    
-
     setFormData((prev) => ({ ...prev, [field]: value }));
     setTouched((prev) => ({ ...prev, [field]: true }));
 
@@ -587,7 +574,6 @@ export default function BookingPage() {
     };
 
     if (field === "bookingDate" && value) {
-      
       const selectedDate = new Date(value);
       setSelectedDate(selectedDate);
       fetchDateConstraints(value);
@@ -668,9 +654,6 @@ export default function BookingPage() {
           const diffMs = selectedMidnight.getTime() - todayMidnight.getTime();
           const diffDays = diffMs / (1000 * 60 * 60 * 24);
 
-          
-         
-
           if (diffDays < 2) {
             newErrors.bookingDate = `Booking must be at least 2 days in advance`;
             if (touched.bookingDate) {
@@ -682,9 +665,9 @@ export default function BookingPage() {
         }
         break;
       case "numberOfTents":
+        // Only validate for Wadi if current location is Wadi
         if (formData.location === "Wadi" && formData.numberOfTents < 2) {
           newErrors.numberOfTents = "Wadi location requires at least 2 tents";
-          // toast.error("Wadi location requires minimum 2 tents");
         } else {
           delete newErrors.numberOfTents;
         }
@@ -740,8 +723,6 @@ export default function BookingPage() {
 
       const diffTime = selectedMidnight.getTime() - todayMidnight.getTime();
       const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-     
 
       if (diffDays < 2) {
         newErrors.bookingDate = `Booking must be at least 2 days in advance`;
@@ -833,8 +814,6 @@ export default function BookingPage() {
         window.location.href = url;
       }, 1500);
     } catch (error) {
-     
-
       // Dismiss loading toast and show error
       toast.dismiss(loadingToast);
       const errorMessage =
@@ -848,7 +827,6 @@ export default function BookingPage() {
   };
 
   const handleManualRefresh = async () => {
-    
     isUserInteracting.current = false;
     await refreshSettings();
   };
@@ -878,10 +856,19 @@ export default function BookingPage() {
   }
 
   const handleLocationChange = (location: string) => {
-   
     setFormData((prev) => ({ ...prev, location }));
     setTouched((prev) => ({ ...prev, location: true }));
 
+    // Clear any existing Wadi-related errors when location changes
+    setErrors((prev) => {
+      const newErrors = { ...prev };
+      if (prev.numberOfTents === "Wadi location requires at least 2 tents") {
+        delete newErrors.numberOfTents;
+      }
+      return newErrors;
+    });
+
+    // Only validate for Wadi if Wadi is selected
     if (location === "Wadi") {
       if (
         formData.numberOfTents < 2 &&
@@ -894,16 +881,8 @@ export default function BookingPage() {
         setTouched((prev) => ({ ...prev, numberOfTents: true }));
         toast.error("Wadi location requires minimum 2 tents");
       }
-    } else if (location !== "Wadi") {
-      // Clear Wadi-specific errors when switching away from Wadi
-      setErrors((prev) => {
-        const newErrors = { ...prev };
-        if (prev.numberOfTents === "Wadi location requires at least 2 tents") {
-          delete newErrors.numberOfTents;
-        }
-        return newErrors;
-      });
     }
+    // No else clause needed - errors are already cleared above
   };
 
   return (
@@ -932,20 +911,19 @@ export default function BookingPage() {
         >
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
             <div className="lg:col-span-3">
-             <div className="relative w-full h-[300px] md:h-[420px] rounded-xl overflow-hidden shadow-xl group">
-  <Image
-    src={
-      campingImages[currentImageIndex].src ||
-      "/placeholder.svg?height=420&width=1000&query=luxury desert camping"
-    }
-    alt={campingImages[currentImageIndex].alt}
-    fill
-    className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
-    priority={currentImageIndex === 0}
-  />
-  <div className="absolute inset-0 bg-gradient-to-t from-[#3C2317]/40 via-transparent to-transparent"></div>
-</div>
-
+              <div className="relative w-full h-[300px] md:h-[420px] rounded-xl overflow-hidden shadow-xl group">
+                <Image
+                  src={
+                    campingImages[currentImageIndex].src ||
+                    "/placeholder.svg?height=420&width=1000&query=luxury desert camping"
+                  }
+                  alt={campingImages[currentImageIndex].alt}
+                  fill
+                  className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                  priority={currentImageIndex === 0}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#3C2317]/40 via-transparent to-transparent"></div>
+              </div>
             </div>
             <div className="grid grid-cols-4 lg:grid-cols-1 gap-2">
               {campingImages.slice(1, 5).map((image, index) => (
@@ -982,7 +960,7 @@ export default function BookingPage() {
             <div className="lg:col-span-2 space-y-6">
               <div className="text-left">
                 <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-[#3C2317] mb-3 flex items-center gap-2">
-                  Nomadic Camping Rental Setups 🔥
+                  Nomadic Camping Rental Setups ⛺
                 </h1>
                 <p className="text-[#3C2317]/80 text-sm mb-4">
                   The UAE's ultimate camping experience
@@ -1209,14 +1187,14 @@ export default function BookingPage() {
             </div>
             {/* RIGHT: Book Your Setup Now + Highlights + Included/Not Included */}
             <aside className="space-y-6 sm:space-y-4 lg:space-y-4 lg:sticky lg:top-24 h-max">
-              <Card className="border-[#D3B88C]/40 shadow-md bg-gradient-to-br from-[#FBF9D9] to-[#E6CFA9] rounded-lg lg:rounded-xl overflow-hidden !pt-0">
+              <Card className="border-[#D3B88C]/40 shadow-md bg-gradient-to-br from-[#FBF9D9] to-[#E6CFA9] rounded-lg lg:rounded-xl overflow-hidden !pt-0 !gap-0">
                 <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 px-2 sm:px-3 lg:px-4 h-8 sm:h-10 py-1.5 sm:py-2 border-b border-[#D3B88C]/30">
                   <CardTitle className="text-[#3C2317] flex items-center text-sm sm:text-sm lg:text-base font-bold tracking-wide">
                     <Check className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 text-[#3C2317]" />
                     Highlights
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="p-2 sm:p-3 lg:p-4 !pt-0">
+                <CardContent className="px-2 sm:px-3 lg:px-4 py-3 sm:py-3 lg:py-3 ">
                   <ul className="divide-y divide-[#3C2317]/15 text-xs text-[#3C2317]">
                     {[
                       "Private Camping Setups in the Desert or Wadi",
@@ -1240,14 +1218,14 @@ export default function BookingPage() {
               {/* What's Included and Not Included stacked */}
               <div className="grid grid-cols-1 gap-2 sm:gap-3">
                 {/* What's Included */}
-                <Card className="border-[#D3B88C]/40 shadow-md bg-gradient-to-br from-[#FBF9D9] to-[#E6CFA9] rounded-lg lg:rounded-xl overflow-hidden !pt-0">
+                <Card className="border-[#D3B88C]/40 shadow-md bg-gradient-to-br from-[#FBF9D9] to-[#E6CFA9] rounded-lg lg:rounded-xl overflow-hidden !pt-0 !gap-0">
                   <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 px-2 sm:px-3 lg:px-4 h-8 sm:h-10 py-1.5 sm:py-2 border-b border-[#D3B88C]/30">
                     <CardTitle className="text-[#3C2317] flex items-center text-sm sm:text-sm lg:text-base font-bold tracking-wide">
                       <Check className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 text-[#3C2317]" />
                       What's Included
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="p-2 sm:p-3 lg:p-4 !pt-0">
+                  <CardContent className="px-2 sm:px-3 lg:px-4 py-3 sm:py-3 lg:py-3">
                     <ul className="divide-y divide-[#3C2317]/15 text-xs text-[#3C2317]">
                       {[
                         "Canvas Nomadic Tent (sleeps up to 4 people, singles & doubles available)",
@@ -1272,14 +1250,14 @@ export default function BookingPage() {
                 </Card>
 
                 {/* Not Included */}
-                <Card className="border-[#D3B88C]/40 shadow-md bg-gradient-to-br from-[#FBF9D9] to-[#E6CFA9] rounded-lg lg:rounded-xl overflow-hidden !pt-0">
+                <Card className="border-[#D3B88C]/40 shadow-md bg-gradient-to-br from-[#FBF9D9] to-[#E6CFA9] rounded-lg lg:rounded-xl overflow-hidden !pt-0 !gap-0">
                   <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 px-2 sm:px-3 lg:px-4 h-8 sm:h-10 py-1.5 sm:py-2 border-b border-[#D3B88C]/30">
                     <CardTitle className="text-[#3C2317] flex items-center text-sm sm:text-sm lg:text-base font-bold tracking-wide">
                       <X className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 text-[#3C2317]" />
                       Not Included
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="p-2 sm:p-3 lg:p-4 !pt-0">
+                  <CardContent className="px-2 sm:px-3 lg:px-4 py-3 sm:py-3 lg:py-3">
                     <ul className="divide-y divide-[#3C2317]/15 text-xs text-[#3C2317]">
                       {[
                         "Food & beverages",
@@ -1471,12 +1449,10 @@ export default function BookingPage() {
                         onValueChange={(
                           value: "Desert" | "Mountain" | "Wadi"
                         ) => {
-                         
                           if (
                             dateConstraints.lockedLocation &&
                             value !== dateConstraints.lockedLocation
                           ) {
-                            
                             setLocationMessage(
                               `This date is reserved for ${dateConstraints.lockedLocation} location only. Please select a different date to book ${value}.`
                             );
@@ -1580,17 +1556,6 @@ export default function BookingPage() {
                         </div>
                       )}
 
-                      {formData.location === "Desert" && (
-                        <div className="mt-2 p-2 sm:p-3 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg">
-                          <div className="flex items-center space-x-2">
-                            <div className="w-2 h-2 bg-amber-500 rounded-full flex-shrink-0"></div>
-                            <span className="text-xs sm:text-sm font-medium text-amber-800">
-                              Nomadic Camping Desert
-                            </span>
-                          </div>
-                        </div>
-                      )}
-
                       {/* Location & Setup info bullets */}
                       <div className="mt-3 p-3 bg-[#E6CFA9]/40 border border-[#D3B88C]/40 rounded-lg">
                         <ul className="list-disc pl-4 text-[#3C2317] text-xs sm:text-sm space-y-1">
@@ -1649,11 +1614,13 @@ export default function BookingPage() {
                             <Plus className="h-3 w-3" />
                           </Button>
                         </div>
-                        {errors.numberOfTents && touched.numberOfTents && (
-                          <p className="text-xs text-red-600 mt-1.5 text-center">
-                            {errors.numberOfTents}
-                          </p>
-                        )}
+                        {errors.numberOfTents &&
+                          touched.numberOfTents &&
+                          formData.location === "Wadi" && ( // Add this condition
+                            <p className="text-xs text-red-600 mt-1.5 text-center">
+                              {errors.numberOfTents}
+                            </p>
+                          )}
                       </div>
 
                       {/* Adults */}
@@ -1789,7 +1756,7 @@ export default function BookingPage() {
                                 </SelectTrigger>
                                 <SelectContent>
                                   <SelectItem value="all-singles">
-                                    4 single beds
+                                    All Single beds
                                   </SelectItem>
                                   <SelectItem value="two-doubles">
                                     2 double beds (4 guests)
@@ -2134,40 +2101,41 @@ export default function BookingPage() {
                 onSubmit={handleSubmit}
               >
                 <Card className="border-[#D3B88C]/50 shadow-lg hover:shadow-xl transition-all duration-300 bg-[#FBF9D9]/80 backdrop-blur-sm !pt-0">
-  <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 border-b border-[#D3B88C]/50 h-10 sm:h-12 py-2 sm:py-3 px-3 sm:px-6">
-    <CardTitle className="text-[#3C2317] text-sm sm:text-base lg:text-lg">
-      Payment
-    </CardTitle>
-  </CardHeader>
-  <CardContent className="space-y-3 sm:space-y-4 !pt-0">
-    <div className="bg-[#D3B88C]/20 p-8 rounded-lg text-center">
-      <h4 className="font-bold text-[#3C2317] mb-3 text-2xl">
-        Complete Your Booking
-      </h4>
-      <p className="text-sm text-[#3C2317]/80 mb-6 max-w-md mx-auto">
-        Secure and seamless payment processing to finalize your reservation with confidence.
-      </p>
-      <Button
-        onClick={handleSubmit}
-        type="submit"
-        className="bg-[#5D4037] text-[#FBF9D9] hover:bg-[#5D4037] cursor-pointer px-8 py-4 rounded-lg"
-        disabled={isLoading}
-      >
-        {isLoading ? (
-          <div className="flex items-center space-x-2">
-            <Loader2Icon className="w-4 h-4 animate-spin" />
-            <span>Processing...</span>
-          </div>
-        ) : (
-          <div className="flex items-center space-x-2">
-           <Shield className="w-3 h-3 sm:w-4 sm:h-4" />
-            <span>Proceed to Payment</span>
-          </div>
-        )}
-      </Button>
-    </div>
-  </CardContent>
-</Card>
+                  <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 border-b border-[#D3B88C]/50 h-10 sm:h-12 py-2 sm:py-3 px-3 sm:px-6">
+                    <CardTitle className="text-[#3C2317] text-sm sm:text-base lg:text-lg">
+                      Payment
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3 sm:space-y-4 !pt-0">
+                    <div className="bg-[#D3B88C]/20 p-8 rounded-lg text-center">
+                      <h4 className="font-bold text-[#3C2317] mb-3 text-2xl">
+                        Complete Your Booking
+                      </h4>
+                      <p className="text-sm text-[#3C2317]/80 mb-6 max-w-md mx-auto">
+                        Secure and seamless payment processing to finalize your
+                        reservation with confidence.
+                      </p>
+                      <Button
+                        onClick={handleSubmit}
+                        type="submit"
+                        className="bg-[#5D4037] text-[#FBF9D9] hover:bg-[#5D4037] cursor-pointer px-8 py-4 rounded-lg"
+                        disabled={isLoading}
+                      >
+                        {isLoading ? (
+                          <div className="flex items-center space-x-2">
+                            <Loader2Icon className="w-4 h-4 animate-spin" />
+                            <span>Processing...</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center space-x-2">
+                            <Shield className="w-3 h-3 sm:w-4 sm:h-4" />
+                            <span>Proceed to Payment</span>
+                          </div>
+                        )}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
 
                 <div className="flex justify-start pt-2 sm:pt-3">
                   <Button
@@ -2431,24 +2399,24 @@ export default function BookingPage() {
       </div>
 
       {/* WhatsApp Floating Button */}
-<div className="fixed bottom-4 right-3 z-50">
-  <a
-    href="https://wa.link/wf9dkt"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="bg-[#25D366] hover:bg-[#25D366] text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 cursor-pointer flex items-center justify-center"
-    aria-label="Contact us on WhatsApp"
-  >
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 32 32"
-      fill="currentColor"
-      className="w-6 h-6"
-    >
-      <path d="M16 0C7.2 0 0 7.2 0 16c0 2.8.7 5.5 2.1 7.9L0 32l8.3-2.2c2.3 1.3 4.9 2 7.7 2 8.8 0 16-7.2 16-16S24.8 0 16 0zm0 29c-2.5 0-4.9-.7-7-2l-.5-.3-4.9 1.3 1.3-4.8-.3-.5C3.4 21.6 3 18.8 3 16 3 8.8 8.8 3 16 3s13 5.8 13 13-5.8 13-13 13zm7.4-9.4c-.4-.2-2.3-1.1-2.6-1.2-.4-.2-.6-.2-.9.2-.3.4-1 1.2-1.2 1.4-.2.2-.4.3-.8.1-.4-.2-1.6-.6-3-1.9-1.1-1-1.9-2.2-2.1-2.6-.2-.4 0-.6.2-.8.2-.2.4-.4.6-.6.2-.2.3-.4.5-.6.2-.2.2-.4.1-.7s-.9-2.1-1.3-2.9c-.3-.7-.6-.6-.9-.6h-.8c-.3 0-.7.1-1.1.5-.4.4-1.5 1.4-1.5 3.4s1.6 3.9 1.8 4.2c.2.3 3.1 4.7 7.7 6.6 1.1.5 2 .8 2.7 1 .6.2 1.1.2 1.6.1.5-.1 1.6-.6 1.8-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.7-.4z" />
-    </svg>
-  </a>
-</div>
+      <div className="fixed bottom-4 right-3 z-50">
+        <a
+          href="https://wa.link/wf9dkt"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="bg-[#25D366] hover:bg-[#25D366] text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 cursor-pointer flex items-center justify-center"
+          aria-label="Contact us on WhatsApp"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 32 32"
+            fill="currentColor"
+            className="w-6 h-6"
+          >
+            <path d="M16 0C7.2 0 0 7.2 0 16c0 2.8.7 5.5 2.1 7.9L0 32l8.3-2.2c2.3 1.3 4.9 2 7.7 2 8.8 0 16-7.2 16-16S24.8 0 16 0zm0 29c-2.5 0-4.9-.7-7-2l-.5-.3-4.9 1.3 1.3-4.8-.3-.5C3.4 21.6 3 18.8 3 16 3 8.8 8.8 3 16 3s13 5.8 13 13-5.8 13-13 13zm7.4-9.4c-.4-.2-2.3-1.1-2.6-1.2-.4-.2-.6-.2-.9.2-.3.4-1 1.2-1.2 1.4-.2.2-.4.3-.8.1-.4-.2-1.6-.6-3-1.9-1.1-1-1.9-2.2-2.1-2.6-.2-.4 0-.6.2-.8.2-.2.4-.4.6-.6.2-.2.3-.4.5-.6.2-.2.2-.4.1-.7s-.9-2.1-1.3-2.9c-.3-.7-.6-.6-.9-.6h-.8c-.3 0-.7.1-1.1.5-.4.4-1.5 1.4-1.5 3.4s1.6 3.9 1.8 4.2c.2.3 3.1 4.7 7.7 6.6 1.1.5 2 .8 2.7 1 .6.2 1.1.2 1.6.1.5-.1 1.6-.6 1.8-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.7-.4z" />
+          </svg>
+        </a>
+      </div>
     </div>
   );
 }

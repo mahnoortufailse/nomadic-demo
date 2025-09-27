@@ -82,7 +82,7 @@ export default function BookingSuccessPage() {
     <div className="min-h-screen bg-white">
       {/* Navigation */}
       <nav className="bg-[#3C2317]/90 backdrop-blur-md border-b border-[#3C2317]/50 shadow-lg sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center space-x-4 group">
               <Image
@@ -93,42 +93,40 @@ export default function BookingSuccessPage() {
                 className="h-10 w-auto"
               />
             </Link>
-           
           </div>
         </div>
       </nav>
 
-      <div className="max-w-4xl mx-auto px-6 py-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6">
         {/* Success Header */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-6">
           <div className="w-full flex justify-center">
-            <div className="w-96">
+            <div className="w-64">
               <DotLottieReact src="/tent.lottie" loop autoplay />
             </div>
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold text-[#3C2317] mb-4">
+          <h1 className="text-2xl md:text-3xl font-bold text-[#3C2317] mb-3">
             Booking <span className="text-[#D3B88C]">Confirmed!</span>
           </h1>
-          <p className="text-lg text-[#3C2317]/80">
-            Thank you for choosing Nomadic. Your desert adventure is booked and
-            confirmed.
+          <p className="text-base text-[#3C2317]/80">
+            Thank you for choosing Nomadic. Your desert adventure is booked and confirmed.
           </p>
         </div>
 
         {/* Booking Details */}
-        <div className="grid md:grid-cols-2 gap-6">
-          <Card className="border-[#D3B88C]/50 shadow-xl bg-[#FBF9D9]/80 backdrop-blur-sm !py-0">
-            <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 border-b border-[#D3B88C]/50  h-12 py-3">
-              <CardTitle className="text-[#3C2317] text-xl">
+        <div className="grid md:grid-cols-2 gap-4">
+          <Card className="border-[#D3B88C]/50 shadow-xl bg-[#FBF9D9]/80 backdrop-blur-sm !py-0 !gap-0">
+            <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 px-2 sm:px-3 lg:px-4 h-8 sm:h-10 py-1.5 sm:py-2 border-b border-[#D3B88C]/30">
+              <CardTitle className="text-[#3C2317] flex items-center text-sm sm:text-sm lg:text-base font-bold tracking-wide">
                 Booking Details
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-6 space-y-4">
-              <div className="flex items-center space-x-3">
-                <Calendar className="w-5 h-5 text-[#3C2317]" />
+            <CardContent className="p-4 space-y-3">
+              <div className="flex items-center space-x-2">
+                <Calendar className="w-4 h-4 text-[#3C2317]" />
                 <div>
-                  <p className="font-medium text-[#3C2317]">Date</p>
-                  <p className="text-[#3C2317]/80">
+                  <p className="font-medium text-[#3C2317] text-sm">Date</p>
+                  <p className="text-[#3C2317]/80 text-sm">
                     {new Date(booking.bookingDate).toLocaleDateString("en-US", {
                       weekday: "long",
                       year: "numeric",
@@ -139,19 +137,19 @@ export default function BookingSuccessPage() {
                 </div>
               </div>
 
-              <div className="flex items-center space-x-3">
-                <MapPin className="w-5 h-5 text-[#3C2317]" />
+              <div className="flex items-center space-x-2">
+                <MapPin className="w-4 h-4 text-[#3C2317]" />
                 <div>
-                  <p className="font-medium text-[#3C2317]">Location</p>
-                  <p className="text-[#3C2317]/80">{booking.location}</p>
+                  <p className="font-medium text-[#3C2317] text-sm">Location</p>
+                  <p className="text-[#3C2317]/80 text-sm">{booking.location}</p>
                 </div>
               </div>
 
-              <div className="flex items-center space-x-3">
-                <Users className="w-5 h-5 text-[#3C2317]" />
+              <div className="flex items-center space-x-2">
+                <Users className="w-4 h-4 text-[#3C2317]" />
                 <div>
-                  <p className="font-medium text-[#3C2317]">Tents</p>
-                  <p className="text-[#3C2317]/80">
+                  <p className="font-medium text-[#3C2317] text-sm">Tents</p>
+                  <p className="text-[#3C2317]/80 text-sm">
                     {booking.numberOfTents} tent
                     {booking.numberOfTents > 1 ? "s" : ""}
                   </p>
@@ -162,8 +160,8 @@ export default function BookingSuccessPage() {
                 booking.addOns.firewood ||
                 booking.addOns.portableToilet) && (
                 <div>
-                  <p className="font-medium text-[#3C2317] mb-2">Add-ons</p>
-                  <ul className="text-[#3C2317]/80 space-y-1">
+                  <p className="font-medium text-[#3C2317] text-sm mb-1">Add-ons</p>
+                  <ul className="text-[#3C2317]/80 text-sm space-y-0.5">
                     {booking.addOns.charcoal && <li>• Premium Charcoal</li>}
                     {booking.addOns.firewood && <li>• Premium Firewood</li>}
                     {booking.addOns.portableToilet && (
@@ -175,64 +173,64 @@ export default function BookingSuccessPage() {
 
               {booking.notes && (
                 <div>
-                  <p className="font-medium text-[#3C2317]">Special Requests</p>
-                  <p className="text-[#3C2317]/80">{booking.notes}</p>
+                  <p className="font-medium text-[#3C2317] text-sm">Special Requests</p>
+                  <p className="text-[#3C2317]/80 text-sm">{booking.notes}</p>
                 </div>
               )}
             </CardContent>
           </Card>
 
-          <Card className="border-[#D3B88C]/50 shadow-xl bg-[#FBF9D9]/80 backdrop-blur-sm !py-0">
-            <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 border-b border-[#D3B88C]/50  h-12 py-3">
-              <CardTitle className="text-[#3C2317] text-xl">
+          <Card className="border-[#D3B88C]/50 shadow-xl bg-[#FBF9D9]/80 backdrop-blur-sm !py-0  !gap-0">
+            <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 px-2 sm:px-3 lg:px-4 h-8 sm:h-10 py-1.5 sm:py-2 border-b border-[#D3B88C]/30">
+              <CardTitle className="text-[#3C2317] flex items-center text-sm sm:text-sm lg:text-base font-bold tracking-wide">
                 Payment Summary
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-6 space-y-4">
-              <div className="space-y-2">
+            <CardContent className="p-4 space-y-3">
+              <div className="space-y-1.5">
                 <div className="flex justify-between">
-                  <span className="text-[#3C2317]">Subtotal</span>
-                  <span className="text-[#3C2317]">
+                  <span className="text-[#3C2317] text-sm">Subtotal</span>
+                  <span className="text-[#3C2317] text-sm">
                     AED {booking.subtotal.toFixed(2)}
                   </span>
                 </div>
-                <div className="flex justify-between text-sm text-[#3C2317]/80">
+                <div className="flex justify-between text-xs text-[#3C2317]/80">
                   <span>VAT (5%)</span>
                   <span>AED {booking.vat.toFixed(2)}</span>
                 </div>
-                <div className="border-t border-[#D3B88C] pt-2">
-                  <div className="flex justify-between text-lg font-bold text-[#3C2317]">
-                    <span>Total Paid</span>
-                    <span>AED {booking.total.toFixed(2)}</span>
+                <div className="border-t border-[#D3B88C] pt-1.5">
+                  <div className="flex justify-between font-bold text-[#3C2317]">
+                    <span className="text-base">Total Paid</span>
+                    <span className="text-base">AED {booking.total.toFixed(2)}</span>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-gradient-to-r from-[#84cc16]/20 to-[#65a30d]/20 p-4 rounded-xl border border-[#84cc16]/30">
-  <div className="flex items-center space-x-2">
-    <CheckCircle className="w-5 h-5 text-[#3f6212]" />
-    <span className="font-medium text-[#365314]">
-      Payment Successful
-    </span>
-  </div>
-</div>
+              <div className="bg-gradient-to-r from-[#84cc16]/20 to-[#65a30d]/20 p-3 rounded-lg border border-[#84cc16]/30">
+                <div className="flex items-center space-x-2">
+                  <CheckCircle className="w-4 h-4 text-[#3f6212]" />
+                  <span className="font-medium text-[#365314] text-sm">
+                    Payment Successful
+                  </span>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
 
         {/* Next Steps */}
-        <Card className="mt-8 border-[#D3B88C]/50 shadow-xl bg-[#FBF9D9]/80 backdrop-blur-sm !py-0">
-          <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 border-b border-[#D3B88C]/50  h-12 py-3">
-            <CardTitle className="text-[#3C2317] text-xl">
+        <Card className="mt-6 border-[#D3B88C]/50 shadow-xl bg-[#FBF9D9]/80 backdrop-blur-sm !py-0  !gap-0">
+          <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 px-2 sm:px-3 lg:px-4 h-8 sm:h-10 py-1.5 sm:py-2 border-b border-[#D3B88C]/30">
+            <CardTitle className="text-[#3C2317] flex items-center text-sm sm:text-base lg:text-base font-bold tracking-wide">
               What Happens Next?
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-6 space-y-4">
-            <div className="flex items-start space-x-3">
-              <Mail className="w-5 h-5 text-[#3C2317] mt-1" />
+          <CardContent className="p-4 space-y-3">
+            <div className="flex items-start space-x-2">
+              <Mail className="w-4 h-4 text-[#3C2317] mt-0.5" />
               <div>
-                <p className="font-medium text-[#3C2317]">Confirmation Email</p>
-                <p className="text-[#3C2317]/80">
+                <p className="font-medium text-[#3C2317] text-sm">Confirmation Email</p>
+                <p className="text-[#3C2317]/80 text-sm">
                   You'll receive a detailed confirmation email at{" "}
                   <span className="font-medium">{booking.customerEmail}</span>{" "}
                   within the next few minutes.
@@ -240,22 +238,22 @@ export default function BookingSuccessPage() {
               </div>
             </div>
 
-            <div className="flex items-start space-x-3">
-              <Calendar className="w-5 h-5 text-[#3C2317] mt-1" />
+            <div className="flex items-start space-x-2">
+              <Calendar className="w-4 h-4 text-[#3C2317] mt-0.5" />
               <div>
-                <p className="font-medium text-[#3C2317]">Pre-Trip Contact</p>
-                <p className="text-[#3C2317]/80">
+                <p className="font-medium text-[#3C2317] text-sm">Pre-Trip Contact</p>
+                <p className="text-[#3C2317]/80 text-sm">
                   Our team will contact you 24-48 hours before your trip with
                   final details and meeting instructions.
                 </p>
               </div>
             </div>
 
-            <div className="flex items-start space-x-3">
-              <Shield className="w-5 h-5 text-[#3C2317] mt-1" />
+            <div className="flex items-start space-x-2">
+              <Shield className="w-4 h-4 text-[#3C2317] mt-0.5" />
               <div>
-                <p className="font-medium text-[#3C2317]">Adventure Day</p>
-                <p className="text-[#3C2317]/80">
+                <p className="font-medium text-[#3C2317] text-sm">Adventure Day</p>
+                <p className="text-[#3C2317]/80 text-sm">
                   Arrive at the designated meeting point and get ready for an
                   unforgettable desert experience!
                 </p>
@@ -265,11 +263,11 @@ export default function BookingSuccessPage() {
         </Card>
 
         {/* Actions */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
+        <div className="flex flex-col sm:flex-row gap-3 justify-center mt-6">
           <Button
             asChild
             size="lg"
-            className="bg-gradient-to-r from-[#3C2317] to-[#5D4037] hover:from-[#3C2317]/90 hover:to-[#5D4037]/90 text-[#FBF9D9] font-bold py-4 text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+            className="bg-gradient-to-r from-[#3C2317] to-[#5D4037] hover:from-[#3C2317]/90 hover:to-[#5D4037]/90 text-[#FBF9D9] font-bold py-3 text-base shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
           >
             <Link href="/">Return Home</Link>
           </Button>
@@ -277,7 +275,7 @@ export default function BookingSuccessPage() {
             asChild
             variant="outline"
             size="lg"
-            className="border-2 border-[#D3B88C] hover:border-[#3C2317] hover:bg-[#3C2317]/5 text-[#3C2317] transition-all duration-300 hover:text-[#3C2317]"
+            className="border-2 border-[#D3B88C] hover:border-[#3C2317] hover:bg-[#3C2317]/5 text-[#3C2317] transition-all duration-300 hover:text-[#3C2317] py-3 text-base"
           >
             <Link href="/">Book Another Trip</Link>
           </Button>
