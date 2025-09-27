@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   title: "Nomadic Bookings - Desert Camping Experience",
   description:
     "Experience the ultimate desert camping adventure with Nomadic Bookings",
-  generator: "v0.app",
+ 
 };
 
 export default function RootLayout({

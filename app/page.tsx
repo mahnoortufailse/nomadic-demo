@@ -1188,7 +1188,7 @@ export default function BookingPage() {
             {/* RIGHT: Book Your Setup Now + Highlights + Included/Not Included */}
             <aside className="space-y-6 sm:space-y-4 lg:space-y-4 lg:sticky lg:top-24 h-max">
               <Card className="border-[#D3B88C]/40 shadow-md bg-gradient-to-br from-[#FBF9D9] to-[#E6CFA9] rounded-lg lg:rounded-xl overflow-hidden !pt-0 !gap-0">
-                <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 px-2 sm:px-3 lg:px-4 h-8 sm:h-10 py-1.5 sm:py-2 border-b border-[#D3B88C]/30">
+                <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 px-2 sm:px-3 lg:px-4 h-9 sm:h-11 py-2 sm:py-3 border-b border-[#D3B88C]/30">
                   <CardTitle className="text-[#3C2317] flex items-center text-sm sm:text-sm lg:text-base font-bold tracking-wide">
                     <Check className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 text-[#3C2317]" />
                     Highlights
@@ -1219,7 +1219,7 @@ export default function BookingPage() {
               <div className="grid grid-cols-1 gap-2 sm:gap-3">
                 {/* What's Included */}
                 <Card className="border-[#D3B88C]/40 shadow-md bg-gradient-to-br from-[#FBF9D9] to-[#E6CFA9] rounded-lg lg:rounded-xl overflow-hidden !pt-0 !gap-0">
-                  <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 px-2 sm:px-3 lg:px-4 h-8 sm:h-10 py-1.5 sm:py-2 border-b border-[#D3B88C]/30">
+                  <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 px-2 sm:px-3 lg:px-4 h-9 sm:h-11 py-2 sm:py-3 border-b border-[#D3B88C]/30">
                     <CardTitle className="text-[#3C2317] flex items-center text-sm sm:text-sm lg:text-base font-bold tracking-wide">
                       <Check className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 text-[#3C2317]" />
                       What's Included
@@ -1251,7 +1251,7 @@ export default function BookingPage() {
 
                 {/* Not Included */}
                 <Card className="border-[#D3B88C]/40 shadow-md bg-gradient-to-br from-[#FBF9D9] to-[#E6CFA9] rounded-lg lg:rounded-xl overflow-hidden !pt-0 !gap-0">
-                  <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 px-2 sm:px-3 lg:px-4 h-8 sm:h-10 py-1.5 sm:py-2 border-b border-[#D3B88C]/30">
+                  <CardHeader className="bg-gradient-to-r from-[#D3B88C]/20 to-[#E6CFA9]/20 px-2 sm:px-3 lg:px-4 h-9 sm:h-11 py-2 sm:py-3 border-b border-[#D3B88C]/30">
                     <CardTitle className="text-[#3C2317] flex items-center text-sm sm:text-sm lg:text-base font-bold tracking-wide">
                       <X className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 text-[#3C2317]" />
                       Not Included
