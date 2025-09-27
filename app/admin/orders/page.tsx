@@ -372,6 +372,9 @@ export default function OrdersPage() {
                                                       "Two Double Beds (2 doubles)"}
                                                     {arrangement.arrangement === "mix" &&
                                                       "Mixed Arrangement (1 double + 2 singles)"}
+                                                    {arrangement.arrangement === "custom" &&
+                                                      (arrangement.customArrangement ||
+                                                        "Custom arrangement (not specified)")}
                                                   </div>
                                                 </div>
                                               ))}
@@ -423,37 +426,38 @@ export default function OrdersPage() {
                                       )}
 
                                       {/* Additional Services */}
-                                     {selectedBooking.customAddOnsWithDetails && selectedBooking.customAddOnsWithDetails.length > 0 && (
-                                      <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-[#D3B88C]/30 shadow-sm">
-                                        <h4 className="font-bold mb-4 text-[#3C2317] border-b border-[#D3B88C]/30 pb-3 flex items-center text-lg">
-                                          <Star className="w-5 h-5 mr-3 text-[#84cc16]" />
-                                          Additional Services
-                                        </h4>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                          {selectedBooking.customAddOnsWithDetails.map((addOn: any, index: number) => (
-                                            <div
-                                              key={index}
-                                              className="bg-[#84cc16]/10 p-4 rounded-lg border border-[#84cc16]/20"
-                                            >
-                                              <div className="flex items-center text-[#3C2317] mb-2">
-                                                <div className="w-3 h-3 bg-[#84cc16] rounded-full mr-3"></div>
-                                                <span className="font-semibold">
-                                                  {addOn.name}
-                                                </span>
-                                              </div>
-                                              <p className="text-[#3C2317]/70 text-sm">
-                                                {addOn.description || "Additional custom service"}
-                                              </p>
-                                              {addOn.price && (
-                                                <p className="text-[#0891b2] font-semibold text-sm mt-1">
-                                                  AED {addOn.price.toFixed(2)}
-                                                </p>
+                                      {selectedBooking.customAddOnsWithDetails &&
+                                        selectedBooking.customAddOnsWithDetails.length > 0 && (
+                                          <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-[#D3B88C]/30 shadow-sm">
+                                            <h4 className="font-bold mb-4 text-[#3C2317] border-b border-[#D3B88C]/30 pb-3 flex items-center text-lg">
+                                              <Star className="w-5 h-5 mr-3 text-[#84cc16]" />
+                                              Additional Services
+                                            </h4>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                              {selectedBooking.customAddOnsWithDetails.map(
+                                                (addOn: any, index: number) => (
+                                                  <div
+                                                    key={index}
+                                                    className="bg-[#84cc16]/10 p-4 rounded-lg border border-[#84cc16]/20"
+                                                  >
+                                                    <div className="flex items-center text-[#3C2317] mb-2">
+                                                      <div className="w-3 h-3 bg-[#84cc16] rounded-full mr-3"></div>
+                                                      <span className="font-semibold">{addOn.name}</span>
+                                                    </div>
+                                                    <p className="text-[#3C2317]/70 text-sm">
+                                                      {addOn.description || "Additional custom service"}
+                                                    </p>
+                                                    {addOn.price && (
+                                                      <p className="text-[#0891b2] font-semibold text-sm mt-1">
+                                                        AED {addOn.price.toFixed(2)}
+                                                      </p>
+                                                    )}
+                                                  </div>
+                                                ),
                                               )}
                                             </div>
-                                          ))}
-                                        </div>
-                                      </div>
-                                    )}
+                                          </div>
+                                        )}
 
                                       {/* Special Notes */}
                                       {selectedBooking.notes && (

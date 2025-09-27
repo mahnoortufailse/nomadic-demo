@@ -10,7 +10,8 @@ export interface Booking {
   children: number
   sleepingArrangements: Array<{
     tentNumber: number
-    arrangement: "all-singles" | "two-doubles" | "mix"
+    arrangement: "all-singles" | "two-doubles" | "mix" | "custom"
+    customArrangement?: string
   }>
   addOns: {
     charcoal: boolean
@@ -82,7 +83,8 @@ export interface BookingFormData {
   children: number
   sleepingArrangements: Array<{
     tentNumber: number
-    arrangement: "all-singles" | "two-doubles" | "mix"
+    arrangement: "all-singles" | "two-doubles" | "mix" | "custom"
+    customArrangement?: string
   }>
   addOns: {
     charcoal: boolean

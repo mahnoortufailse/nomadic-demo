@@ -77,10 +77,10 @@ export default function AdminDashboard() {
     try {
       setLoading(true)
       console.log("Fetching dashboard data...")
-      
+
       // Fetch stats
       const statsResponse = await fetch("/api/stats", {
-        cache: 'no-store'
+        cache: "no-store",
       })
       console.log("Stats response status:", statsResponse.status)
       if (!statsResponse.ok) throw new Error("Failed to fetch stats")
@@ -90,7 +90,7 @@ export default function AdminDashboard() {
 
       // Fetch chart data
       const chartResponse = await fetch("/api/charts", {
-        cache: 'no-store'
+        cache: "no-store",
       })
       console.log("Chart response status:", chartResponse.status)
       if (!chartResponse.ok) throw new Error("Failed to fetch chart data")
@@ -103,14 +103,13 @@ export default function AdminDashboard() {
 
       // Fetch recent bookings
       const bookingsResponse = await fetch("/api/bookings?isPaid=true&limit=10", {
-        cache: 'no-store'
+        cache: "no-store",
       })
       console.log("Bookings response status:", bookingsResponse.status)
       if (!bookingsResponse.ok) throw new Error("Failed to fetch bookings")
       const bookingsData = await bookingsResponse.json()
       console.log("Bookings data:", bookingsData)
       setBookings(bookingsData.bookings || [])
-      
     } catch (error) {
       console.error("Error fetching dashboard data:", error)
       toast.error("Failed to load dashboard data")
@@ -118,7 +117,6 @@ export default function AdminDashboard() {
       setLoading(false)
     }
   }
-
 
   const handleDeleteBooking = async (bookingId: string) => {
     setDeleteLoading(bookingId)
@@ -415,7 +413,7 @@ export default function AdminDashboard() {
                                         </div>
                                         <div className="flex justify-between items-start">
                                           <span className="text-[#3C2317]/70 font-medium">Email:</span>
-                                          <span className="font-semibold text-[#3C2317] text-right max-w-[200px] break-all text-sm">
+                                          <span className="font-semibold text-[#3C2317] text-right max-w-[200px] break-words text-sm">
                                             {selectedBooking.customerEmail}
                                           </span>
                                         </div>
@@ -501,6 +499,9 @@ export default function AdminDashboard() {
                                                     "Two Double Beds (2 doubles)"}
                                                   {arrangement.arrangement === "mix" &&
                                                     "Mixed Arrangement (1 double + 2 singles)"}
+                                                  {arrangement.arrangement === "custom" &&
+                                                    (arrangement.customArrangement ||
+                                                      "Custom arrangement (not specified)")}
                                                 </div>
                                               </div>
                                             ))}
@@ -521,7 +522,6 @@ export default function AdminDashboard() {
                                           {selectedBooking.addOns.charcoal && (
                                             <div className="bg-[#E6CFA9]/30 p-4 rounded-lg border border-[#D3B88C]/20">
                                               <div className="flex items-center text-[#3C2317] mb-2">
-                                                
                                                 <span className="font-semibold">Premium Charcoal</span>
                                               </div>
                                               {/* <p className="text-[#3C2317]/70 text-sm">High-quality charcoal for BBQ</p> */}
@@ -530,7 +530,6 @@ export default function AdminDashboard() {
                                           {selectedBooking.addOns.firewood && (
                                             <div className="bg-[#E6CFA9]/30 p-4 rounded-lg border border-[#D3B88C]/20">
                                               <div className="flex items-center text-[#3C2317] mb-2">
-                                               
                                                 <span className="font-semibold">Premium Firewood</span>
                                               </div>
                                               {/* <p className="text-[#3C2317]/70 text-sm">Seasoned wood for campfire</p> */}
@@ -539,7 +538,6 @@ export default function AdminDashboard() {
                                           {selectedBooking.addOns.portableToilet && (
                                             <div className="bg-[#E6CFA9]/30 p-4 rounded-lg border border-[#D3B88C]/20">
                                               <div className="flex items-center text-[#3C2317] mb-2">
-                                                
                                                 <span className="font-semibold">Portable Toilet</span>
                                               </div>
                                               {/* <p className="text-[#3C2317]/70 text-sm">Luxury portable facilities</p> */}
@@ -549,38 +547,37 @@ export default function AdminDashboard() {
                                       </div>
                                     )}
 
-                                   {selectedBooking.customAddOnsWithDetails && selectedBooking.customAddOnsWithDetails.length > 0 && (
-                                      <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-[#D3B88C]/30 shadow-sm">
-                                        <h4 className="font-bold mb-4 text-[#3C2317] border-b border-[#D3B88C]/30 pb-3 flex items-center text-lg">
-                                          <Star className="w-5 h-5 mr-3 text-[#84cc16]" />
-                                          Additional Services
-                                        </h4>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                          {selectedBooking.customAddOnsWithDetails.map((addOn: any, index: number) => (
-                                            <div
-                                              key={index}
-                                              className="bg-[#84cc16]/10 p-4 rounded-lg border border-[#84cc16]/20"
-                                            >
-                                              <div className="flex items-center text-[#3C2317] mb-2">
-                                                
-                                                <span className="font-semibold">
-                                                  {addOn.name}
-                                                </span>
-                                              </div>
-                                              <p className="text-[#3C2317]/70 text-sm">
-                                                {addOn.description || "Additional custom service"}
-                                              </p>
-                                              {addOn.price && (
-                                                <p className="text-[#0891b2] font-semibold text-sm mt-1">
-                                                  AED {addOn.price.toFixed(2)}
-                                                </p>
-                                              )}
-                                            </div>
-                                          ))}
+                                    {selectedBooking.customAddOnsWithDetails &&
+                                      selectedBooking.customAddOnsWithDetails.length > 0 && (
+                                        <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-[#D3B88C]/30 shadow-sm">
+                                          <h4 className="font-bold mb-4 text-[#3C2317] border-b border-[#D3B88C]/30 pb-3 flex items-center text-lg">
+                                            <Star className="w-5 h-5 mr-3 text-[#84cc16]" />
+                                            Additional Services
+                                          </h4>
+                                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            {selectedBooking.customAddOnsWithDetails.map(
+                                              (addOn: any, index: number) => (
+                                                <div
+                                                  key={index}
+                                                  className="bg-[#84cc16]/10 p-4 rounded-lg border border-[#84cc16]/20"
+                                                >
+                                                  <div className="flex items-center text-[#3C2317] mb-2">
+                                                    <span className="font-semibold">{addOn.name}</span>
+                                                  </div>
+                                                  <p className="text-[#3C2317]/70 text-sm">
+                                                    {addOn.description || "Additional custom service"}
+                                                  </p>
+                                                  {addOn.price && (
+                                                    <p className="text-[#0891b2] font-semibold text-sm mt-1">
+                                                      AED {addOn.price.toFixed(2)}
+                                                    </p>
+                                                  )}
+                                                </div>
+                                              ),
+                                            )}
+                                          </div>
                                         </div>
-                                      </div>
-                                    )}
-
+                                      )}
 
                                     {/* Special Notes */}
                                     {selectedBooking.notes && (

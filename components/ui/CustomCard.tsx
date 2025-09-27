@@ -1,9 +1,9 @@
-"use client";
-import Image from "next/image";
-import type { CardComponentProps } from "nextstepjs";
+"use client"
+import Image from "next/image"
+import type { CardComponentProps } from "nextstepjs"
 
 // full-body avatar
-import avatar from "@/public/avatar.png";
+import avatar from "@/public/placeholder-user.jpg"
 
 export const CustomCard = ({
   step,
@@ -20,7 +20,7 @@ export const CustomCard = ({
       <div className="absolute -top-16 left-1/2 transform -translate-x-1/2">
         <div className="w-28 h-28 overflow-hidden">
           <Image
-            src={avatar}
+            src={avatar || "/placeholder.svg"}
             alt="Tour Guide Avatar"
             width={112}
             height={112}
@@ -68,5 +68,5 @@ export const CustomCard = ({
       {/* Pointer arrow */}
       <div className="absolute">{arrow}</div>
     </div>
-  );
-};
+  )
+}
