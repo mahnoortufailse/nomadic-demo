@@ -4,7 +4,7 @@
 import type React from "react"
 
 import { useState, useEffect, useCallback, useRef } from "react"
-import toast from "react-hot-toast"
+import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -476,7 +476,7 @@ export default function BookingPage() {
 
   const handleSleepingArrangementChange = (
     tentNumber: number,
-    arrangement: "all-singles" | "two-doubles" | "mix" | "custom",
+    arrangement: "all-singles" | "two-doubles" | "mix" | "double-bed" | "custom",
   ) => {
     setFormData((prev) => ({
       ...prev,
@@ -688,7 +688,10 @@ export default function BookingPage() {
     setIsLoading(true)
 
     // Show loading toast
-    const loadingToast = toast.loading("Processing your booking...")
+   const loadingToast = toast.loading(
+  "Processing your booking request... Please wait while we confirm the details."
+)
+
 
     try {
       const bookingData = {
@@ -828,6 +831,8 @@ export default function BookingPage() {
                     campingImages[currentImageIndex].src ||
                     "/placeholder.svg?height=420&width=1000&query=luxury desert camping" ||
                     "/placeholder.svg" ||
+                    "/placeholder.svg" ||
+                    "/placeholder.svg" ||
                     "/placeholder.svg"
                   }
                   alt={campingImages[currentImageIndex].alt}
@@ -849,6 +854,8 @@ export default function BookingPage() {
                     src={
                       image.src ||
                       "/placeholder.svg?height=130&width=200&query=camping scene" ||
+                      "/placeholder.svg" ||
+                      "/placeholder.svg" ||
                       "/placeholder.svg" ||
                       "/placeholder.svg" ||
                       "/placeholder.svg" ||
@@ -942,7 +949,6 @@ export default function BookingPage() {
               </section>
 
               <div className="space-y-8">
-                {/* Itinerary */}
                 {/* Itinerary */}
                 <section className="pl-3 border-l-3 border-[#D3B88C]">
                   <div className="flex items-center gap-2 mb-3">
@@ -1338,23 +1344,15 @@ export default function BookingPage() {
                           <SelectItem value="Mountain" disabled>
                             ⛰️ Mountain (Coming Soon)
                           </SelectItem>
-                        <SelectItem
+                          <SelectItem
                             value="Wadi"
-                            disabled={
-                              dateConstraints.lockedLocation &&
-                              dateConstraints.lockedLocation !== "Wadi"
-                            }
+                            disabled={dateConstraints.lockedLocation && dateConstraints.lockedLocation !== "Wadi"}
                           >
                             🌊 Wadi
-                            <span className="text-xs text-amber-600 ml-2">
-                              (min. 2 tents required)
-                            </span>
-                            {dateConstraints.lockedLocation &&
-                              dateConstraints.lockedLocation !== "Wadi" && (
-                                <span className="text-xs text-gray-500 ml-2">
-                                  (Not available for this date)
-                                </span>
-                              )}
+                            <span className="text-xs text-amber-600 ml-2">(min. 2 tents required)</span>
+                            {dateConstraints.lockedLocation && dateConstraints.lockedLocation !== "Wadi" && (
+                              <span className="text-xs text-gray-500 ml-2">(Not available for this date)</span>
+                            )}
                           </SelectItem>
                         </SelectContent>
                       </Select>
@@ -1542,69 +1540,69 @@ export default function BookingPage() {
                       </div>
                     )}
 
-                   {formData.numberOfTents > 0 && (
-  <div className="mt-2 sm:mt-3">
-    <Label className="text-[#3C2317] block font-medium text-xs sm:text-sm mb-1">
-      Sleeping Arrangements
-    </Label>
-    <div className="text-[10px] sm:text-xs text-[#3C2317]/70 mb-2 sm:mb-2 leading-snug">
-      Configure how guests will sleep in each tent (max 4 guests per tent)
-    </div>
-    
-    <div className="space-y-2 sm:space-y-3">
-      {formData.sleepingArrangements.map((arrangement) => (
-        <div
-          key={arrangement.tentNumber}
-          className="bg-[#E6CFA9]/20 rounded-lg p-3 border border-[#D3B88C]/40"
-        >
-          {/* Tent Header and Select */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3 mb-1">
-            <div className="flex items-center gap-1.5">
-              <span className="text-[#3C2317] font-semibold text-[11px] sm:text-sm">
-                Tent {arrangement.tentNumber}
-              </span>
-            </div>
-            
-            <Select
-              value={arrangement.arrangement}
-              onValueChange={(value: "all-singles" | "two-doubles" | "mix" | "custom") =>
-                handleSleepingArrangementChange(arrangement.tentNumber, value)
-              }
-            >
-              <SelectTrigger className="w-full sm:w-32 border-0 border-[#D3B88C] focus:border-[#3C2317] h-6 text-xs bg-white/90 rounded-md">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="text-xs">
-                <SelectItem value="all-singles">All Single beds</SelectItem>
-                <SelectItem value="two-doubles">2 double beds</SelectItem>
-                <SelectItem value="mix">1 double + 2 singles</SelectItem>
-                <SelectItem value="custom">Custom</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+                    {formData.numberOfTents > 0 && (
+                      <div className="mt-2 sm:mt-3">
+                        <Label className="text-[#3C2317] block font-medium text-xs sm:text-sm mb-1">
+                          Sleeping Arrangements
+                        </Label>
+                        <div className="text-[10px] sm:text-xs text-[#3C2317]/70 mb-2 sm:mb-2 leading-snug">
+                          Configure how guests will sleep in each tent (max 4 guests per tent)
+                        </div>
 
-          {/* Custom Input Field */}
-          {arrangement.arrangement === "custom" && (
-            <div className="mt-2 pt-2 border-t border-[#D3B88C]/30">
-              <Label className="text-[#3C2317] text-xs font-medium mb-1.5 block">
-                Custom sleeping arrangement
-              </Label>
-              <Input
-                placeholder="e.g., '1 double + 1 single'"
-                value={arrangement.customArrangement || ""}
-                onChange={(e) =>
-                  handleCustomArrangementChange(arrangement.tentNumber, e.target.value)
-                }
-                className="w-full border border-[#D3B88C] focus:border-[#3C2317] focus:ring-1 focus:ring-[#3C2317]/20 h-9 text-xs px-2 rounded-md bg-white placeholder:text-[#3C2317]/40 transition-all duration-200"
-              />
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
-  </div>
-)}
+                        <div className="space-y-2 sm:space-y-3">
+                          {formData.sleepingArrangements.map((arrangement) => (
+                            <div
+                              key={arrangement.tentNumber}
+                              className="bg-[#E6CFA9]/20 rounded-lg p-3 border border-[#D3B88C]/40"
+                            >
+                              {/* Tent Header and Select */}
+                              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3 mb-1">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="text-[#3C2317] font-semibold text-[11px] sm:text-sm">
+                                    Tent {arrangement.tentNumber}
+                                  </span>
+                                </div>
 
+                                <Select
+                                  value={arrangement.arrangement}
+                                  onValueChange={(
+                                    value: "all-singles" | "two-doubles" | "mix" | "double-bed" | "custom",
+                                  ) => handleSleepingArrangementChange(arrangement.tentNumber, value)}
+                                >
+                                  <SelectTrigger className="w-full sm:w-32 border-0 border-[#D3B88C] focus:border-[#3C2317] h-6 text-xs bg-white/90 rounded-md">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent className="text-xs">
+                                    <SelectItem value="all-singles">All Single beds</SelectItem>
+                                    <SelectItem value="two-doubles">2 double beds</SelectItem>
+                                    <SelectItem value="mix">1 double + 2 singles</SelectItem>
+                                    <SelectItem value="double-bed">Double bed</SelectItem>
+                                    <SelectItem value="custom">Custom</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+
+                              {/* Custom Input Field */}
+                              {arrangement.arrangement === "custom" && (
+                                <div className="mt-2 pt-2 border-t border-[#D3B88C]/30">
+                                  <Label className="text-[#3C2317] text-xs font-medium mb-1.5 block">
+                                    Custom sleeping arrangement
+                                  </Label>
+                                  <Input
+                                    placeholder="e.g., '1 double + 1 single'"
+                                    value={arrangement.customArrangement || ""}
+                                    onChange={(e) =>
+                                      handleCustomArrangementChange(arrangement.tentNumber, e.target.value)
+                                    }
+                                    className="w-full border border-[#D3B88C] focus:border-[#3C2317] focus:ring-1 focus:ring-[#3C2317]/20 h-9 text-xs px-2 rounded-md bg-white placeholder:text-[#3C2317]/40 transition-all duration-200"
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
 
@@ -1995,7 +1993,6 @@ export default function BookingPage() {
                   {pricing.addOnsCost > 0 && (
                     <div className="flex justify-between items-center text-xs sm:text-sm p-2 sm:p-3 bg-gradient-to-r from-[#E6CFA9]/20 to-[#D3B88C]/20 rounded-lg border border-[#D3B88C]/20">
                       <div className="flex items-center space-x-2">
-                        
                         <span className="text-[#3C2317]/80 font-medium">Premium Add-ons</span>
                       </div>
                       <span className="text-[#3C2317] font-semibold">AED {pricing.addOnsCost.toFixed(2)}</span>

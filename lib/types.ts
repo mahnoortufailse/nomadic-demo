@@ -10,7 +10,7 @@ export interface Booking {
   children: number
   sleepingArrangements: Array<{
     tentNumber: number
-    arrangement: "all-singles" | "two-doubles" | "mix" | "custom"
+    arrangement: "all-singles" | "two-doubles" | "mix" | "double-bed" | "custom"
     customArrangement?: string
   }>
   addOns: {
@@ -41,8 +41,9 @@ export interface DateLocationLock {
 export interface Settings {
   _id?: string
   tentPrices: {
-    singleTent: number
-    multipleTents: number
+    weekday: number // Mon-Thu pricing for single tent
+    weekend: number // Fri-Sun pricing for single tent
+    multipleTents: number // 2+ tents always use this price
   }
   addOnPrices: {
     charcoal: number
@@ -83,7 +84,7 @@ export interface BookingFormData {
   children: number
   sleepingArrangements: Array<{
     tentNumber: number
-    arrangement: "all-singles" | "two-doubles" | "mix" | "custom"
+    arrangement: "all-singles" | "two-doubles" | "mix" | "double-bed" | "custom"
     customArrangement?: string
   }>
   addOns: {

@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge"
 import { MapPin, Save, ArrowLeft, SettingsIcon, DollarSign, Tent, Plus, Trash2, AlertCircle } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
-import { toast } from "react-hot-toast"
+import { toast } from "sonner"
 import type { Settings } from "@/lib/types"
 
 export default function AdminSettingsPage() {

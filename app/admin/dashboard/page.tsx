@@ -499,6 +499,7 @@ export default function AdminDashboard() {
                                                     "Two Double Beds (2 doubles)"}
                                                   {arrangement.arrangement === "mix" &&
                                                     "Mixed Arrangement (1 double + 2 singles)"}
+                                                  {arrangement.arrangement === "double-bed" && "Double Bed (1 double)"}
                                                   {arrangement.arrangement === "custom" &&
                                                     (arrangement.customArrangement ||
                                                       "Custom arrangement (not specified)")}
